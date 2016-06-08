@@ -55,6 +55,7 @@ docs/_build/
 
 # PyBuilder
 target/
+<<<<<<< HEAD
 
 
 # pyDev
@@ -71,3 +72,5 @@ Desktop.ini
 /tmp
 /reports
 config.py
+=======
+>>>>>>> 426a0164167ec4b4a666ed35c50417af7095c8dd
