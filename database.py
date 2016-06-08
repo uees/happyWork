@@ -87,3 +87,6 @@ def init_database():
 def reset_table(tableClass):
     tableClass.__table__.drop(checkfirst=True)
     tableClass.__table__.create()
+    
+def get_table_class(name):
+    pass

@@ -7,7 +7,6 @@ import sys
 import argparse
 import time
 from datetime import datetime
-from data_warp import db
 from officer import Word, Excel
 from config import TEMPLATES, REPORT_PATH
 from common import exe_path, Objdict, is_number
@@ -256,9 +255,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--index", type=int, help="excel中需要生成报告的起始行")
     parser.add_argument("-f", "--format", choices=['pdf', 'doc'], default='doc', help="格式化为PDF还是DOC")
+    parser.add_argument("--init_database", action="store_true", default=False, help="初始化数据库")
+    parser.add_argument("--reset_table", help="重置单个表")
     args = parser.parse_args()
     if args.index:
         g = Generator(args.index, args.format)
         g.generate_reports()
+    elif args.init_database:
+        init_database()
+    elif args.reset_table:
+        reset_table(get_table_class(args.reset_table))
     else:
         print("unknown parameter, please refer --help for more detail.")
