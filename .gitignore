@@ -71,6 +71,7 @@ Desktop.ini
 # My configurations:
 /tmp
 /reports
+/templates
 config.py
 =======
 >>>>>>> 426a0164167ec4b4a666ed35c50417af7095c8dd
