@@ -79,14 +79,10 @@ class Material(Base):
     name = Column(String(64), default='') #材料名
     note = Column(String(64), default='') #备注
     
-def init_database():
-    Base.metadata.drop_all() 
-    Base.metadata.create_all()
-    print("All done!")
-    
-def reset_table(tableClass):
-    tableClass.__table__.drop(checkfirst=True)
-    tableClass.__table__.create()
-    
 def get_table_class(name):
-    pass
+    table_class = dict(materials=Material,
+                       formula_info=FormulaInfo,
+                       formulas=Formula,
+                       batchs=Batch,
+                       products=Product)
+    return table_class[name]
