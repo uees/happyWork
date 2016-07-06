@@ -15,8 +15,8 @@ class WTemplate(object):
         self.document.save(filename)
         
     def change_paragraph(self, paragraph, filter_format):
-        for format, content in filter_format.items():
-            search_word = "{"+format+"}"
+        for sformat, content in filter_format.items():
+            search_word = "{"+sformat+"}"
             needCheck = True if search_word in paragraph.text else False
             for run in paragraph.runs:
                 if search_word in run.text:
@@ -25,7 +25,7 @@ class WTemplate(object):
                     run.add_text(replaced)
                     needCheck = False
             if needCheck:
-                #print format, " is not checked in ", paragraph.text
+                #print sformat, " is not checked in ", paragraph.text
                 start_idx = 0
                 end_idx = 0
                 complete_word = ""

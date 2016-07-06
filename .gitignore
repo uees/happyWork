@@ -55,7 +55,7 @@ docs/_build/
 
 # PyBuilder
 target/
-<<<<<<< HEAD
+
 
 
 # pyDev
@@ -69,9 +69,10 @@ ehthumbs.db
 Desktop.ini
 
 # My configurations:
-/tmp
-/reports
-/templates
+tests/
+tmp/
+reports/
+templates/
+data/
 config.py
-=======
->>>>>>> 426a0164167ec4b4a666ed35c50417af7095c8dd
+

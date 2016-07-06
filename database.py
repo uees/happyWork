@@ -79,10 +79,73 @@ class Material(Base):
     name = Column(String(64), default='') #材料名
     note = Column(String(64), default='') #备注
     
+class BuliangFangan(Base):
+    '''不良品处理方案'''
+    __tablename__ = 'buliang_fangan'
+    id = Column(Integer, primary_key=True)
+    product_name = Column(String(64), default='')
+    buliang_name = Column(String(64), default='')
+    chuliliang = Column(Float, default=0)
+    
+class CangkuLiushui(Base):
+    '''仓库流水表
+    ALTER TABLE liushui RENAME TO product_liushui
+    '''
+    __tablename__ = 'cangku_liushui'
+    id = Column(Integer, primary_key=True)
+    yewu_type = Column(String(64), default='')
+    jilu_date = Column(DateTime)
+    danhao = Column(String(64), default='')
+    kehu = Column(String(64), default='')
+    chanpin_bianma = Column(String(64), default='')
+    product_name = Column(String(64), default='')
+    spec = Column(String(64), default='')
+    batch = Column(String(64), default='')
+    amount = Column(String(64), default='')
+    product_date = Column(DateTime)
+    peifang_version = Column(String(64), default='')
+    note = Column(String(64), default='')
+    
+class ProductLiushui(Base):
+    '''生产流水表
+    '''
+    __tablename__ = 'product_liushui'
+    id = Column(Integer, primary_key=True)
+    kind = Column(String(64), default='')  # 类别
+    product_name = Column(String(64), default='') #品名
+    batch = Column(String(64), default='') #批号
+    ji_hua_zhong = Column(Float, default=0) #计划重
+    pei_liao_liang = Column(Float, default=0) #配料量
+    he_zhong_liang = Column(Float, default=0) #核重量
+    yan_mo_hou = Column(Float, default=0) #研磨后
+    yan_mo_sun_hao = Column(Float, default=0) #研磨损耗
+    jia_liao_liang = Column(Float, default=0) #加料量
+    san_lei = Column(Float, default=0) #三类
+    fan_hui_you = Column(Float, default=0) #返回油
+    jia_liao_hou = Column(Float, default=0) #加料后
+    sheng_yu_you = Column(Float, default=0) #剩余油
+    ru_ku_liang = Column(Float, default=0) #入库量
+    gu_hua_ji = Column(Float, default=0) #固化剂量
+    bao_zhuang_sun_hao = Column(Float, default=0) #包装损耗
+    zong_sun_hao = Column(Float, default=0) #总损耗
+    sun_hao_lv = Column(Float, default=0) #损耗率
+    wan_cheng_ri = Column(DateTime)
+    
+class BuliangKuchun(Base):
+    '''不良库存量'''
+    __tablename__ = 'buliang_kuchun'
+    id = Column(Integer, primary_key=True)
+    product_name = Column(String(64), default='')
+    amount = Column(Float, default=0)
+    
 def get_table_class(name):
     table_class = dict(materials=Material,
                        formula_info=FormulaInfo,
                        formulas=Formula,
                        batchs=Batch,
-                       products=Product)
+                       products=Product,
+                       buliang_fangan=BuliangFangan,
+                       cangku_liushui=CangkuLiushui,
+                       product_liushui=ProductLiushui,
+                       buliang_kuchun=BuliangKuchun)
     return table_class[name]
