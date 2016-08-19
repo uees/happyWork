@@ -1,1 +1,0 @@
-D:\Python34\Lib\site-packages\PyQt5\pyuic5.bat main.ui -o frist.py

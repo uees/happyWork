@@ -14,12 +14,12 @@ py2exe_options = {"compressed": 1, #压缩
                   #"dll_excludes": ["MSVCP90.dll"] 
                   }
  
-setup(console=[{"script": 'report.py', "icon_resources": [(1, "templates\\rd.ico")]}, 
-               {"script": "init_data.py", "icon_resources": [(1, "templates\\db_48X48.ico")]}],
-      data_files=[("data", ["data\\db.xlsx", "data\\info.db"]),
-                  ("reports", ["reports\\list.xlsx"]),
-                  ("templates", ["templates\\pzb.PNG", "templates\\signature.gif"]),
-                  ("templates", glob.glob("templates\\*.doc"))],
+setup(console=[{"script": 'report.py', "icon_resources": [(1, "templates/rd.ico")]}, 
+               {"script": "init_data.py", "icon_resources": [(1, "templates/db_48X48.ico")]}],
+      data_files=[("data", ["data/db.xlsx", "data/info.db"]),
+                  ("reports", ["reports/list.xlsx"]),
+                  ("templates", ["templates/pzb.PNG", "templates/signature.gif"]),
+                  ("templates", glob.glob("templates/*.doc"))],
       name = 'Report Generator',
       description = "Qc Report Generator, RD Software",
       version = '1.0.1',

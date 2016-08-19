@@ -7,7 +7,7 @@ Created on 2015年7月10日
 from _functools import reduce
 from openpyxl import load_workbook
 from sqlalchemy import and_
-from database import Product, db_session, Base, get_table_class
+from database import Product, db_session, IQCMaterial
 
 
 def search_product(keywords):
@@ -38,32 +38,38 @@ def insert_product_to_xlsx(product, file, sheet):
     ws.cell("E{}".format(index), value=product.market_name)
 
    
-def fetch_product_data(file, sheet):
+def init_product_data(file, sheet):
     wb = load_workbook(filename=file)
     ws = wb.get_sheet_by_name(sheet)
     for row in ws.iter_rows('A2:I{}'.format(ws.max_row)):
-        internal_name,template,viscosity,viscosity_width,market_name,category,part_a,part_b,ratio = row
-        product = Product(internal_name=internal_name.value,
-                          template=template.value,
-                          viscosity=viscosity.value,
-                          viscosity_width=viscosity_width.value,
-                          market_name=market_name.value,
-                          category=category.value,
-                          part_a=part_a.value,
-                          part_b=part_b.value,
-                          ratio=ratio.value)
+        (internal_name, template, viscosity,
+         viscosity_width, market_name, category, 
+         part_a, part_b, ratio) = [cell.value for cell in row]
+        product = Product(internal_name=internal_name,
+                          template=template,
+                          viscosity=viscosity,
+                          viscosity_width=viscosity_width,
+                          market_name=market_name,
+                          category=category,
+                          part_a=part_a,
+                          part_b=part_b,
+                          ratio=ratio)
         db_session.add(product)
     db_session.commit()
-    print("插入了 %s行数据到data/info.db." % ws.max_row)
+    print("插入了 %s行数据到data/database.sdb3." % str(ws.max_row-1))
 
 
-def init_database():
-    Base.metadata.drop_all() 
-    Base.metadata.create_all()
-
-
-def reset_table(tableClass):
-    if isinstance(tableClass, str):
-        tableClass = get_table_class(tableClass)
-    tableClass.__table__.drop(checkfirst=True)
-    tableClass.__table__.create()
+def init_materials(filename, sheet):
+    wb = load_workbook(filename)
+    ws = wb.get_sheet_by_name(sheet)
+    for row in ws.iter_rows('A2:D{}'.format(ws.max_row)):
+        material_name, qc_items, spec, qc_method = [cell.value for cell in row]
+        if not material_name: continue
+        qc_items = qc_items.replace(',', '、').replace('，', '、')
+        material = IQCMaterial(name=material_name,
+                          qc_items=qc_items,
+                          spec=spec,
+                          qc_method=qc_method)
+        db_session.add(material)
+    db_session.commit()
+    print("插入了 %s行数据到data/database.sdb3." % str(ws.max_row-1))

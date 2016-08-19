@@ -64,10 +64,10 @@ class Excel:
             self.filename = 'newfile.xlsx'
             self.wb = self.engine.Workbooks.Add()
             
-    def select(self, sheet_name=''):
+    def select(self, sheet=None):
         ''' select and return a sheet '''
-        if sheet_name:
-            self.ws = self.wb.Worksheets(sheet_name)
+        if sheet:
+            self.ws = self.wb.Worksheets(sheet)
         else:
             self.ws = self.wb.Worksheets(1)
         return self.ws

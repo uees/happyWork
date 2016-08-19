@@ -17,6 +17,14 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base(bind=engine)
 Base.query = db_session.query_property()
 
+class IQCMaterial(Base):
+    __tablename__ = 'iqc_materials'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(64))
+    qc_items = Column(String(250))
+    spec = Column(String(250))
+    qc_method = Column(String(250))
+
 class Product(Base):
     '''产品信息'''
     __tablename__ = 'products'
@@ -30,54 +38,7 @@ class Product(Base):
     part_a = Column(String(64), default='')
     part_b = Column(String(64), default='')
     ratio = Column(Float, default=0)   #ratio = part_b/part_a
-    
-    
-class Batch(Base):
-    '''批次信息'''
-    __tablename__ = 'batchs'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(64), default='', index=True) #生产品名
-    spec = Column(String(64), default='') #规格
-    batch = Column(String(64), default='', index=True) #批号
-    product_amount = Column(Float, default=0) #生产数量
-    warehouse_amount = Column(Float, default=0) #入库数量
-    product_date = Column(DateTime) #生产日期
-    warehouse_date = Column(DateTime) #入库日期
 
-
-class Formula(Base):
-    '''配方列表'''
-    __tablename__ = 'formulas'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(64), default='')
-    create_time = Column(DateTime)
-    update_time = Column(DateTime, default=datetime.utcnow())
-    status = Column(String(64), default='')     #状态：正式、待确认、失效
-    viscosity = Column(String(64), default='0') #粘度要求
-    note = Column(String(64), default='')       #注意事项
-    
-    materials = relationship("FormulaInfo")
-    
-    
-class FormulaInfo(Base):
-    '''配方信息'''
-    __tablename__ = 'formula_info'
-    id = Column(Integer, primary_key=True)
-    material_name = Column(String(64), default='') #材料名
-    material_weight = Column(Float, default=0)     #材料重量 kg
-    material_ratio = Column(Float, default=0)      #材料重量比例 %
-    material_volume = Column(Float, default=0)     #材料体积 ml
-    material_area = Column(String(64), default='') #材料区域
-    material_note = Column(String(64), default='') #注意事项
-    formula_id = Column(Integer, ForeignKey('formulas.id'))
-    
-    
-class Material(Base):
-    '''材料'''
-    __tablename__ = 'materials'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(64), default='') #材料名
-    note = Column(String(64), default='') #备注
     
 class BuliangFangan(Base):
     '''不良品处理方案'''
@@ -113,6 +74,7 @@ class ProductLiushui(Base):
     id = Column(Integer, primary_key=True)
     kind = Column(String(64), default='')  # 类别
     product_name = Column(String(64), default='') #品名
+    product_date = Column(DateTime)
     batch = Column(String(64), default='') #批号
     ji_hua_zhong = Column(Float, default=0) #计划重
     pei_liao_liang = Column(Float, default=0) #配料量
@@ -124,7 +86,10 @@ class ProductLiushui(Base):
     fan_hui_you = Column(Float, default=0) #返回油
     jia_liao_hou = Column(Float, default=0) #加料后
     sheng_yu_you = Column(Float, default=0) #剩余油
+    guan_shu = Column(String(32), default='')
+    gui_ge = Column(String(32), default='')
     ru_ku_liang = Column(Float, default=0) #入库量
+    gui_ge_2 = Column(String(32), default='')
     gu_hua_ji = Column(Float, default=0) #固化剂量
     bao_zhuang_sun_hao = Column(Float, default=0) #包装损耗
     zong_sun_hao = Column(Float, default=0) #总损耗
@@ -138,14 +103,38 @@ class BuliangKuchun(Base):
     product_name = Column(String(64), default='')
     amount = Column(Float, default=0)
     
+class ProductClassification(Base):
+    """ 财务对账使用的产品分类表 """
+    __tablename__ = 'product_classification'
+    id = Column(Integer, primary_key=True)
+    part_id = Column(Integer, default=0)
+    accounting_classification = Column(String(128), default="")  #记账分类
+    costing_classification = Column(String(128), default="")  #成本核算分类
+    new_costing_classification = Column(String(128), default="")  #新成本核算分类
+    model_name = Column(String(64), default="", index=True)  # 型号
+    slug = Column(String(128), default="", index=True)  # 简称
+    unit = Column(String(16), default="kg") #结算单位
+    product_code = Column(String(32), default="00000000**")
+    create_time = Column(DateTime)  # 新增时间
+    delete_time = Column(DateTime)  # 取消时间
+    note = Column(String(250), default="")   # 备注
+    people_name = Column(String(16), default="")  # 工程师
+
+
 def get_table_class(name):
-    table_class = dict(materials=Material,
-                       formula_info=FormulaInfo,
-                       formulas=Formula,
-                       batchs=Batch,
-                       products=Product,
-                       buliang_fangan=BuliangFangan,
-                       cangku_liushui=CangkuLiushui,
-                       product_liushui=ProductLiushui,
-                       buliang_kuchun=BuliangKuchun)
-    return table_class[name]
+    models = [obj for obj in globals().values() if hasattr(obj, '__tablename__')]
+    for model in models:
+        if model.__tablename__ == name:
+            return model
+
+
+def reset_table(tableClass):
+    if isinstance(tableClass, str):
+        tableClass = get_table_class(tableClass)
+    tableClass.__table__.drop(checkfirst=True)
+    tableClass.__table__.create()
+    
+    
+def init_database():
+    Base.metadata.drop_all() 
+    Base.metadata.create_all()
