@@ -17,6 +17,33 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base(bind=engine)
 Base.query = db_session.query_property()
 
+class Hebing(Base):
+    __tablename__ = 'hebing'
+    id = Column(Integer, primary_key=True)
+    code = Column(String)
+    customer = Column(String)
+    
+    cg_2012 = Column(Float)
+    yf_2012 = Column(Float)
+    ye_2012 = Column(Float)
+    
+    cg_2013 = Column(Float)
+    yf_2013 = Column(Float)
+    ye_2013 = Column(Float)
+    
+    cg_2014 = Column(Float)
+    yf_2014 = Column(Float)
+    ye_2014 = Column(Float)
+    
+    cg_2015 = Column(Float)
+    yf_2015 = Column(Float)
+    ye_2015 = Column(Float)
+    
+    cg_2016 = Column(Float)
+    yf_2016 = Column(Float)
+    ye_2016 = Column(Float)
+    
+
 class IQCMaterial(Base):
     __tablename__ = 'iqc_materials'
     id = Column(Integer, primary_key=True)

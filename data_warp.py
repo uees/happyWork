@@ -27,8 +27,8 @@ def insert_product(product):
     db_session.commit()
 
 
-def insert_product_to_xlsx(product, file, sheet):
-    wb = load_workbook(file)
+def insert_product_to_xlsx(product, filename, sheet):
+    wb = load_workbook(filename)
     ws = wb.get_sheet_by_name(sheet)
     index = len(ws.rows)+1
     ws.cell("A{}".format(index), value=product.internal_name)
@@ -36,6 +36,7 @@ def insert_product_to_xlsx(product, file, sheet):
     ws.cell("C{}".format(index), value=product.viscosity)
     ws.cell("D{}".format(index), value=product.viscosity_width)
     ws.cell("E{}".format(index), value=product.market_name)
+    wb.save(filename)
 
    
 def init_product_data(file, sheet):
