@@ -9,6 +9,7 @@ import random
 import data_warp as db
 from datetime import datetime
 from openpyxl import load_workbook
+from openpyxl.styles import Font
 from common import module_path, is_number, rlinput, null2str
 from database import Product, IQCMaterial, init_database, reset_table
 from library import WTemplate
@@ -23,8 +24,8 @@ def generate_iqc_reports(filename, end_row=None):
     for row in ws.iter_rows('B7:G{}'.format(end_row)):
         template_wb = load_workbook('%s/templates/iqc.xlsx' % module_path())
         template_ws = template_wb.get_sheet_by_name('Sheet1')
-        material_name, incoming_date, supplier, qc_result, substandard_items, amount\
-            = [cell.value for cell in row]
+        material_name, incoming_date, supplier, qc_result, substandard_items, \
+            amount = [cell.value for cell in row]
 
         if isinstance(material_name, str):
             _material_name = re.sub(
@@ -41,7 +42,8 @@ def generate_iqc_reports(filename, end_row=None):
                 incoming_date, '%Y-%m-%d')  # 转为字符串
 
         if _material_name.upper() in ['0.25L', '0.3L', '1L', '5L', '6L', '20L',
-                                      '0.25KG', '0.3KG', '1KG', '5KG', '6KG', '20KG']:
+                                      '0.25KG', '0.3KG', '1KG', '5KG', '6KG',
+                                      '20KG']:
             unit = '套'
         else:
             unit = 'kg'
@@ -59,7 +61,8 @@ def generate_iqc_reports(filename, end_row=None):
             if item == '细度':
                 if _material_name.find('A0084') >= 0:
                     template_ws.cell('C{}'.format(row)).value = '<25μm'
-                elif _material_name.find('A0085') >= 0 or _material_name.find('A0088') >= 0:
+                elif _material_name.find('A0085') >= 0 or \
+                        _material_name.find('A0088') >= 0:
                     template_ws.cell('C{}'.format(row)).value = '<17.5μm'
                 else:
                     template_ws.cell('C{}'.format(row)).value = '<20μm'
@@ -84,7 +87,8 @@ def generate_iqc_reports(filename, end_row=None):
                 else:
                     template_ws.cell('C{}'.format(row)).value = '√'
             elif item == '馏程':
-                if _material_name.find('A0055') >= 0 or _material_name.find('A0063') >= 0:
+                if _material_name.find('A0055') >= 0 or \
+                        _material_name.find('A0063') >= 0:
                     template_ws.cell('C{}'.format(row)).value = \
                         '%s~%s℃' % (str(180 + random.randint(1, 9)),
                                     str(220 - random.randint(1, 9)))
@@ -101,7 +105,9 @@ def generate_iqc_reports(filename, end_row=None):
         template_ws.cell('B11').value = material.spec
 
         new_filename = '%s-%s-%s-%s.xlsx' % (incoming_date,
-                                             random.randint(1, 99), material_name, supplier)
+                                             random.randint(1, 99),
+                                             material_name,
+                                             supplier)
         template_wb.save('%s/reports/IQC/%s' % (module_path(), new_filename))
 
 
@@ -114,6 +120,7 @@ class Generator(object):
         self._product_wb_file = "%s/reports/list.xlsx" % self.app_path
         self._wb = load_workbook(self._product_wb_file)
         self._ws = None
+        self._font = Font(name='Calibri', size=10)
 
     def generate_reports(self, sheet="Sheet1"):
         ''' 批量生成检验报告 '''
@@ -151,12 +158,20 @@ class Generator(object):
         record = self._make_record(product)
         if not record:
             return
-        ws.cell(row=row, column=1).value = product['product_date']
-        ws.cell(row=row, column=2).value = product['qc_date']
-        ws.cell(row=row, column=3).value = product['internal_name']
-        ws.cell(row=row, column=4).value = product['batch']
+        for (i, item) in zip(range(1, 5), [product['product_date'],
+                                           product['qc_date'],
+                                           product['internal_name'],
+                                           product['batch']
+                                           ]):
+            ws.cell(row=row, column=i).value = item
+            ws.cell(row=row, column=i).font = self._font
+
         for item in record:
             ws.cell(row=row, column=item['col']).value = item['value']
+            ws.cell(row=row, column=item['col']).font = self._font
+
+        for i in range(1, 3):
+            ws.cell(row=row, column=i).style.number_format = 'yyyy/mm/dd'
 
     def _make_record(self, product):
         record = []
@@ -275,12 +290,11 @@ class Generator(object):
         validity_date = ''
         ext_info = ''
 
-        customer, internal_name, spec, batch, amount, product_date = \
-            [self._ws.cell(row=index, column=i).value for i in range(1, 7)]
+        customer, internal_name, spec, batch, amount, product_date = [
+            self._ws.cell(row=index, column=i).value for i in range(1, 7)]
 
-        customer, internal_name, spec, batch, amount, product_date = \
-            map(null2str, [customer, internal_name,
-                           spec, batch, amount, product_date])
+        customer, internal_name, spec, batch, amount, product_date = map(null2str, [customer, internal_name,
+                                                                                    spec, batch, amount, product_date])
 
         internal_name = re.sub(
             r'[\(\)（）]|20kg|20KG|5kg|5KG|1kg|1KG', ' ', internal_name)  # 去除不良字符
@@ -422,14 +436,26 @@ class Generator(object):
 
     def _set_report_info(self, product):
         ''' 写入部分信息到指定行 '''
-        self._ws.cell('G{}'.format(self.index)).value = product[
-            'internal_name']
-        self._ws.cell('H{}'.format(self.index)).value = product[
-            'viscosity_limit']
-        self._ws.cell('I{}'.format(self.index)).value = product['product_date']
-        self._ws.cell('J{}'.format(self.index)).value = product[
-            'validity_date']
-        self._ws.cell('K{}'.format(self.index)).value = product['qc_date']
+        self._ws.cell('G{}'.format(
+            self.index)).value = product['internal_name']
+
+        self._ws.cell('H{}'.format(
+            self.index)).value = product['viscosity_limit']
+
+        self._ws.cell('I{}'.format(
+            self.index)).value = product['product_date']
+        self._ws.cell('I{}'.format(
+            self.index)).style.number_format = 'yyyy/mm/dd'
+
+        self._ws.cell('J{}'.format(
+            self.index)).value = product['validity_date']
+        self._ws.cell('J{}'.format(
+            self.index)).style.number_format = 'yyyy/mm/dd'
+
+        self._ws.cell('K{}'.format(
+            self.index)).value = product['qc_date']
+        self._ws.cell('K{}'.format(
+            self.index)).style.number_format = 'yyyy/mm/dd'
 
     def get_today_report_dir_path(self):
         '''自动创建并返回当日报告文件夹路径'''

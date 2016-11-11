@@ -1,10 +1,11 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import os
 import sys
 
 if 'posix' in sys.builtin_module_names:
     import readline
+
     def rlinput(prompt, prefill=''):
         readline.set_startup_hook(lambda: readline.insert_text(prefill))
         try:
@@ -13,8 +14,9 @@ if 'posix' in sys.builtin_module_names:
             readline.set_startup_hook()
 elif 'nt' in sys.builtin_module_names:
     import win32console
-    _stdout=win32console.GetStdHandle(win32console.STD_OUTPUT_HANDLE)
-    _stdin=win32console.GetStdHandle(win32console.STD_INPUT_HANDLE)
+    _stdout = win32console.GetStdHandle(win32console.STD_OUTPUT_HANDLE)
+    _stdin = win32console.GetStdHandle(win32console.STD_INPUT_HANDLE)
+
     def rlinput(prompt, prefill=''):
         keys = []
         for c in prefill:
@@ -50,6 +52,7 @@ def is_number(value):
         return False
     else:
         return True
+
 
 def null2str(value):
     if value is None:

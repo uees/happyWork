@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 '''
 Created on 2016年6月15日
 
@@ -9,13 +9,15 @@ import re
 from openpyxl import load_workbook
 from datetime import datetime
 
+
 class FormulaAnalyst(object):
     ''' 分析一个excel文件，获取产品配方信息'''
+
     def __init__(self, filename):
         self.filename = filename
         self.wb = load_workbook(filename=self.filename, data_only=True)
         self.ws_count = len(self.wb.worksheets)
-        
+
     def get_formulas(self):
         ''' return all formulas in self.filename 
         formula is dict(name<str>, version<str>, info<str>, date<datetime>, 
@@ -32,7 +34,7 @@ class FormulaAnalyst(object):
             formula['jialiao_yaoqiu'] = jialiao_info['yaoqiu']
             formulas.append(formula)
         return formulas
-        
+
     def match_filemame(self):
         ''' return dict(name, date, info, version) '''
         filename = self.filename.replace("（", "(").replace("）", ")")
@@ -48,29 +50,28 @@ class FormulaAnalyst(object):
             formula = match.groupdict()
             formula['name'] = formula['name'].strip().strip("_")
             return formula
-        
+
         return dict(name=os.path.splitext(filename)[0],
                     date=datetime.utcnow(),
                     version='B-01',
                     info='')
-    
-    
-      
+
     def get_product_name_in_sheet(self):
         ''' return a [(product_name, sheet_name)] list '''
         products = []
         sheets = self.wb.get_sheet_names()
         for sheet in sheets:
-            if sheet.find('配料单') < 0:  #跟踪单
+            if sheet.find('配料单') < 0:  # 跟踪单
                 name = self.wb.get_sheet_by_name(sheet).cell("B4").value
-                if name: 
+                if name:
                     products.append((name, sheet))
                 else:
-                    raise Exception('在 %s 的sheet %s 中没有找到产品名, 请检查是否为不标准的配方格式。' % (self.filename, sheet))
-        
-        assert len(products) == len(sheets) -1
+                    raise Exception('在 %s 的sheet %s 中没有找到产品名, 请检查是否为不标准的配方格式。' %
+                                    (self.filename, sheet))
+
+        assert len(products) == len(sheets) - 1
         return products
-    
+
     def get_mixing_materials(self, start=8):
         ''' return a list[(name, amount, location)] '''
         materials = list()
@@ -78,33 +79,33 @@ class FormulaAnalyst(object):
             ws = self.wb.get_sheet_by_name('配料单')
         except:
             ws = self.wb.worksheets[0]
-            
+
         for row in ws.iter_rows("B8:C{}".format(ws.max_row)):
             name, amount = [cell.value for cell in row]
             if name and isinstance(amount, float) or isinstance(amount, int):
                 materials.append((name, amount, '配料'))
-                
+
         return materials
-    
+
     def get_jiaoliao_info(self, sheet):
         ''' return a dict(materials<list>, yaoqiu<list>) '''
         info = dict(materials=[], yaoqiu=[])
         ws = self.wb.get_sheet_by_name(sheet)
         title = ws.cell("A2").value
-        if title is None or title.replace(" ", "") == u"RoHS配料生产记录表": # 配料单
+        if title is None or title.replace(" ", "") == u"RoHS配料生产记录表":  # 配料单
             return info
-        
-        row=13
+
+        row = 13
         while ws.cell(row=row, column=1).value != "物料名称":   # 获取加料信息起始行
             row += 1
             if row > ws.max_row:  # 防止死循环
                 break
-        
+
         while True:   # 获取加料信息结束行
             row += 1
             name = ws.cell(row=row, column=1).value
             amount = ws.cell(row=row, column=3).value
-            if name == '返回油墨' or row > ws.max_row:  #加料信息结束行
+            if name == '返回油墨' or row > ws.max_row:  # 加料信息结束行
                 break
             if name:
                 if isinstance(amount, float) or isinstance(amount, int):
