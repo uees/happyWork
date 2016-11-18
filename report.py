@@ -170,9 +170,6 @@ class Generator(object):
             ws.cell(row=row, column=item['col']).value = item['value']
             ws.cell(row=row, column=item['col']).font = self._font
 
-        for i in range(1, 3):
-            ws.cell(row=row, column=i).style.number_format = 'yyyy/mm/dd'
-
     def _make_record(self, product):
         record = []
         c = self._get_cat(product["kind"])
@@ -438,24 +435,14 @@ class Generator(object):
         ''' 写入部分信息到指定行 '''
         self._ws.cell('G{}'.format(
             self.index)).value = product['internal_name']
-
         self._ws.cell('H{}'.format(
             self.index)).value = product['viscosity_limit']
-
         self._ws.cell('I{}'.format(
             self.index)).value = product['product_date']
-        self._ws.cell('I{}'.format(
-            self.index)).style.number_format = 'yyyy/mm/dd'
-
         self._ws.cell('J{}'.format(
             self.index)).value = product['validity_date']
-        self._ws.cell('J{}'.format(
-            self.index)).style.number_format = 'yyyy/mm/dd'
-
         self._ws.cell('K{}'.format(
             self.index)).value = product['qc_date']
-        self._ws.cell('K{}'.format(
-            self.index)).style.number_format = 'yyyy/mm/dd'
 
     def get_today_report_dir_path(self):
         '''自动创建并返回当日报告文件夹路径'''
