@@ -142,6 +142,22 @@ class Generator(object):
             if not product:
                 continue
 
+            product_dj = dict()
+            if product['market_name'] == '8BL2' or \
+                    product['market_name'] == '8WL501':
+                product_dj.update(product)
+                product_dj["kind"] = "h8100_dj"
+                product_dj['template'] = TEMPLATES["h8100_dj"]
+                product_dj["ext_info"] = "(达进专用报告)"
+                self.generate_report(product_dj)
+            elif product['market_name'] == '44G' or \
+                    product['market_name'] == '6GHB':
+                product_dj.update(product)
+                product_dj["kind"] = "h9100_dj"
+                product_dj['template'] = TEMPLATES["h9100_dj"]
+                product_dj["ext_info"] = "(达进专用报告)"
+                self.generate_report(product_dj)
+
             self.generate_report(product)
             self._set_report_info(product)
 
@@ -153,6 +169,29 @@ class Generator(object):
             fqc_wb.save(fqc_filename)
         except PermissionError:
             print("war:文件已经被打开，无法写入")
+
+    def generate_report(self, product):
+        ''' 生成检验报告 '''
+        template = self.get_template(product["template"])
+        if not os.path.exists(template):
+            print("%s 模板文件不存在！" % product["kind"])
+            return
+
+        tp = WTemplate(template)
+        tp.replace(product)
+
+        today_report_dir = self.get_today_report_dir_path()
+        filename = '{}_{}_{}{}.docx'.format(product["batch"],
+                                            product["internal_name"],
+                                            product["spec"],
+                                            product["ext_info"])
+        filepath = '{}/{}'.format(today_report_dir, filename)
+
+        if os.path.exists(filepath):
+            print("{}{}已经存在了{}".format(bcolors.WARNING, filename, bcolors.ENDC))
+        else:
+            tp.save(filepath)
+            print("报告已经生成：{}".format(filename))
 
     def fqc_record(self, product, ws, row):
         record = self._make_record(product)
@@ -249,28 +288,6 @@ class Generator(object):
     def _get_col(self, item):
         col = ALL_FQC_ITEMS.index(item) + 5
         return col
-
-    def generate_report(self, product):
-        ''' 生成检验报告 '''
-        template = self.get_template(product["template"])
-        if not os.path.exists(template):
-            return print("%s 模板文件不存在！" % product["kind"])
-
-        tp = WTemplate(template)
-        tp.replace(product)
-
-        today_report_dir = self.get_today_report_dir_path()
-        filename = '{}_{}_{}{}.docx'.format(product["batch"],
-                                            product["internal_name"],
-                                            product["spec"],
-                                            product["ext_info"])
-        filepath = '{}/{}'.format(today_report_dir, filename)
-
-        if os.path.exists(filepath):
-            print("{}{}已经存在了{}".format(bcolors.WARNING, filename, bcolors.ENDC))
-        else:
-            tp.save(filepath)
-            print("报告已经生成：{}".format(filename))
 
     def _validate_id(self, id, list_ids):
         ''' 验证指定的ID是否在给定的列表中 '''
