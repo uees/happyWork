@@ -144,7 +144,7 @@ class Generator(object):
 
             product_dj = dict()
             if product['market_name'] == '8BL2' or \
-                    product['market_name'] == '8WL501':
+                    product['market_name'] == '8WL5 01':
                 product_dj.update(product)
                 product_dj["kind"] = "h8100_dj"
                 product_dj['template'] = TEMPLATES["h8100_dj"]
@@ -424,6 +424,14 @@ class Generator(object):
                                                product_obj.viscosity,
                                                product_obj.viscosity_width))
 
+        given['market_name'] = product_obj.market_name
+        given['kind'] = product_obj.template
+        given['template'] = TEMPLATES[product_obj.template]
+        given['viscosity'] = product_obj.viscosity
+        given['viscosity_limit'] = "%s±%s" % (product_obj.viscosity,
+                                              product_obj.viscosity_width)
+        given['qc_date'] = datetime.strftime(datetime.now(), '%Y/%m/%d')
+
         if product_obj.market_name.find('SP8') >= 0 or \
                 product_obj.market_name == 'A-9060A 01':
             given['ext_info'] += '(深南电路要求打发货数量)'
@@ -436,16 +444,14 @@ class Generator(object):
         if product_obj.market_name == '8BL' or \
                 product_obj.market_name == 'GH3' or \
                 product_obj.market_name.find('G6') >= 0 or \
-                product_obj.market_name.find('MG31') >= 0:
+                product_obj.market_name.find('MG31') >= 0 or \
+                product_obj.market_name.find('崇达') >= 0:
             given['ext_info'] += '(大连崇达要求打发货数量)'
+            if given["kind"] == "h8100":
+                given["kind"] = "h8100_cd"
+            elif given["kind"] == "h9100":
+                given["kind"] = "h9100_cd"
 
-        given['market_name'] = product_obj.market_name
-        given['kind'] = product_obj.template
-        given['template'] = TEMPLATES[product_obj.template]
-        given['viscosity'] = product_obj.viscosity
-        given['viscosity_limit'] = "%s±%s" % (product_obj.viscosity,
-                                              product_obj.viscosity_width)
-        given['qc_date'] = datetime.strftime(datetime.now(), '%Y/%m/%d')
         return given
 
     def _set_report_info(self, product):
