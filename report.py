@@ -445,12 +445,14 @@ class Generator(object):
                 product_obj.market_name == 'GH3' or \
                 product_obj.market_name.find('G6') >= 0 or \
                 product_obj.market_name.find('MG31') >= 0 or \
-                product_obj.market_name.find('崇达') >= 0:
+                product_obj.internal_name.find('崇达') >= 0:
             given['ext_info'] += '(大连崇达要求打发货数量)'
             if given["kind"] == "h8100":
                 given["kind"] = "h8100_cd"
+                given['template'] = TEMPLATES["h8100_cd"]
             elif given["kind"] == "h9100":
                 given["kind"] = "h9100_cd"
+                given['template'] = TEMPLATES["h9100_cd"]
 
         return given
 
