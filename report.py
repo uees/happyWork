@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import os
 import re
@@ -125,10 +125,10 @@ class Generator(object):
     def generate_reports(self, sheet="Sheet1"):
         ''' 批量生成检验报告 '''
         self._ws = self._wb.get_sheet_by_name(sheet)
-        fqc_filename = '%s/reports/FQC&IQC检测记录.xlsx' % self.app_path
-        fqc_wb = load_workbook(fqc_filename)
-        fqc_ws = fqc_wb.get_sheet_by_name('FQC')
-        row = fqc_ws.max_row
+        # fqc_filename = '%s/reports/FQC&IQC检测记录.xlsx' % self.app_path
+        # fqc_wb = load_workbook(fqc_filename)
+        # fqc_ws = fqc_wb.get_sheet_by_name('FQC')
+        # row = fqc_ws.max_row
         for index in range(self.start_index, self._ws.max_row + 1):
             self.index = index
             print("\n------------------------------")
@@ -161,12 +161,13 @@ class Generator(object):
             self.generate_report(product)
             self._set_report_info(product)
 
-            row = row + 1
-            self.fqc_record(product, fqc_ws, row)
+            # row = row + 1
+            # 生成检验报告流水
+            # self.fqc_record(product, fqc_ws, row)
 
         try:  # 最後save提高效率
             self._wb.save(self._product_wb_file)
-            fqc_wb.save(fqc_filename)
+            # fqc_wb.save(fqc_filename)
         except PermissionError:
             print("war:文件已经被打开，无法写入")
 
@@ -432,8 +433,9 @@ class Generator(object):
                                               product_obj.viscosity_width)
         given['qc_date'] = datetime.strftime(datetime.now(), '%Y/%m/%d')
 
-        if product_obj.market_name.find('SP8') >= 0 or \
-                product_obj.market_name == 'A-9060A 01':
+        if product_obj.market_name.find('SP8') == 0 or \
+                product_obj.market_name == 'A-9060A 01' or \
+                product_obj.market_name == '60G':
             given['ext_info'] += '(深南电路要求打发货数量)'
 
         if product_obj.market_name.find('28GHB') >= 0 or \
@@ -443,10 +445,13 @@ class Generator(object):
 
         if product_obj.market_name == '8BL' or \
                 product_obj.market_name == 'GH3' or \
-                product_obj.market_name.find('G6') >= 0 or \
-                product_obj.market_name.find('MG31') >= 0 or \
+                product_obj.market_name.find('G6') == 0 or \
+                product_obj.market_name.find('SP02') == 0 or \
+                product_obj.market_name.find('GH40') == 0 or \
+                product_obj.market_name.find('MG31') == 0 or \
+                product_obj.market_name.find('23GHB') == 0 or \
                 product_obj.internal_name.find('崇达') >= 0:
-            given['ext_info'] += '(大连崇达要求打发货数量)'
+            given['ext_info'] += '(崇达要求打发货数量)'
             if given["kind"] == "h8100":
                 given["kind"] = "h8100_cd"
                 given['template'] = TEMPLATES["h8100_cd"]
