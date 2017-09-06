@@ -6,8 +6,9 @@ Created on 2016年6月15日
 '''
 import os
 import re
-from openpyxl import load_workbook
 from datetime import datetime
+
+from openpyxl import load_workbook
 
 
 class FormulaAnalyst(object):
@@ -19,8 +20,8 @@ class FormulaAnalyst(object):
         self.ws_count = len(self.wb.worksheets)
 
     def get_formulas(self):
-        ''' return all formulas in self.filename 
-        formula is dict(name<str>, version<str>, info<str>, date<datetime>, 
+        ''' return all formulas in self.filename
+        formula is dict(name<str>, version<str>, info<str>, date<datetime>,
         materials<list>, jialiao_yaoqiu<list>)'''
         formulas = []
         formula = self.match_filemame()

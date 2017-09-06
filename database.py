@@ -5,10 +5,12 @@ Created on 2016年6月4日
 
 @author: Wan
 '''
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 from datetime import datetime
+
+from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
+                        create_engine)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 
 engine = create_engine("sqlite:///data/database.sdb3", convert_unicode=True)
 db_session = scoped_session(sessionmaker(autocommit=False,

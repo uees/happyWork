@@ -6,10 +6,11 @@ Created on 2016年8月20日
 @author: Wan
 '''
 import os
-from openpyxl import load_workbook
-from common import module_path
-from database import Hebing, reset_table, db_session
 
+from openpyxl import load_workbook
+
+from common import module_path
+from database import Hebing, db_session, reset_table
 
 data_dir = os.path.join(module_path(), 'data/1')
 to_filename = os.path.join(data_dir, 'bbb.xlsx')

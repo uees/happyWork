@@ -4,10 +4,11 @@ Created on 2015年7月10日
 
 @author: Wan
 '''
-from _functools import reduce
 from openpyxl import load_workbook
 from sqlalchemy import and_
-from database import Product, db_session, IQCMaterial
+
+from _functools import reduce
+from database import IQCMaterial, Product, db_session
 
 
 def search_product(keywords):

@@ -7,6 +7,7 @@ Created on 2016年5月28日
 
 import os
 import shutil
+
 from common import module_path
 
 app_path = module_path()

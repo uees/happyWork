@@ -1,19 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import argparse
 import os
+import random
 import re
 import sys
-import argparse
-import random
-import data_warp as db
 from datetime import datetime
+
 from openpyxl import load_workbook
 from openpyxl.styles import Font
-from common import module_path, is_number, rlinput, null2str
-from database import Product, IQCMaterial, init_database, reset_table
+
+import data_warp as db
+from common import is_number, module_path, null2str, rlinput
+from config import ALL_FQC_ITEMS, FQC_ITEMS, TEMPLATES
+from database import IQCMaterial, Product, init_database, reset_table
 from library import WTemplate
-from config import TEMPLATES, ALL_FQC_ITEMS, FQC_ITEMS
 
 
 def generate_iqc_reports(filename, end_row=None):

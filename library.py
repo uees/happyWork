@@ -4,8 +4,8 @@ Created on 2015年7月10日
 
 @author: Wan
 '''
-from openpyxl import load_workbook, Workbook
 from docx import Document
+from openpyxl import Workbook, load_workbook
 
 
 class WTemplate(object):
