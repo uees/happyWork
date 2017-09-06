@@ -28,7 +28,11 @@ console.setFormatter(formatter)
 log = logging.getLogger('BACKUP.lib')
 log.addHandler(console)
 
-engine = create_engine("sqlite:///E:/备份/backup.db", convert_unicode=True)
+backup_dir = 'E:/备份'
+if not os.path.exists(backup_dir):
+    os.mkdir(backup_dir)
+
+engine = create_engine("sqlite:///%s/backup.db" % backup_dir, convert_unicode=True)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))
@@ -173,7 +177,7 @@ class Manager(object):
 
     def backup2file(self):
         fileto = os.path.join(
-            "E:/备份",
+            backup_dir,
             '%s fqc_backup.xlsx' % datetime.strftime(datetime.now(), '%Y-%m-%d %H-%M-%S')
         )
         shutil.copy(self.filefrom, fileto)
@@ -323,6 +327,11 @@ class Sheet3(Base):
     nai_han_xing = Column(String(64), default='')
     nai_hua_xing = Column(String(64), default='')
     tester = Column(String(64), default='')
+
+
+# fix first run error
+if not os.path.exists(os.path.join(backup_dir, "backup.db")):
+    init_database()
 
 
 if __name__ == "__main__":
