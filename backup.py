@@ -189,6 +189,10 @@ class Manager(object):
             num_columns = conf['num_columns']
             done_row = self.get_done_row(ws, conf['done_column'], start)
 
+            # no new data
+            if start == done_row + 1:
+                continue
+
             data = ws.Range(ws.Cells(start, 1), ws.Cells(done_row, num_columns)).Value
 
             objects = []
@@ -214,6 +218,9 @@ class Manager(object):
             done_cell = ws.Cells(row, done_col)
             if done_cell.Value:
                 return row
+
+        # if all None, the done row is start-1
+        return start - 1
 
     def fix_data(self, row, idx):
         if isinstance(row[idx], datetime):
