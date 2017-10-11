@@ -83,7 +83,7 @@ class Manager(object):
                 'name': 'FQC阻焊表格',
                 'start': int(Option.at('sheet1_start')),
                 'done_column': 18,
-                'num_columns': 28,
+                'num_columns': 29,
                 'model': Sheet1,
                 'fileds': [
                     'date_at',
@@ -106,6 +106,7 @@ class Manager(object):
                     'show_shadow80',
                     'show_shadow12h',
                     'show_shadow24h',
+                    'bmzl',
                     'bridge_line',
                     'tester',
                     'hardness',
@@ -120,7 +121,7 @@ class Manager(object):
                 'name': 'FQC湿膜表格',
                 'start': int(Option.at('sheet2_start')),
                 'done_column': 16,
-                'num_columns': 22,
+                'num_columns': 23,
                 'model': Sheet2,
                 'fileds': [
                     'date_at',
@@ -141,6 +142,7 @@ class Manager(object):
                     'show_shadow',
                     'phototonus24h',
                     'show_shadow24h',
+                    'low_show_shadow',
                     'jie_xiang',
                     'qu_mo',
                     'nai_hua_xing',
@@ -275,6 +277,7 @@ class Sheet1(Base):
     show_shadow80 = Column(String(64), default='')
     show_shadow12h = Column(String(64), default='')
     show_shadow24h = Column(String(64), default='')
+    bmzl = Column(String(64), default='')
     bridge_line = Column(String(64), default='')
     tester = Column(String(64), default='')
     hardness = Column(String(64), default='')
@@ -305,6 +308,7 @@ class Sheet2(Base):
     dieban = Column(String(64), default='')
     phototonus = Column(String(64), default='')
     show_shadow = Column(String(64), default='')
+    low_show_shadow = Column(String(64), default='')
     phototonus24h = Column(String(64), default='')
     show_shadow24h = Column(String(64), default='')
     jie_xiang = Column(String(64), default='')

@@ -10,7 +10,7 @@ import shutil
 import win32com.client
 from pywintypes import com_error
 
-START = {
+FLAGS = {
     'FQC阻焊表格': 5,
     'FQC湿膜表格': 5,
     'FQC其他油墨表格': 5,
@@ -18,6 +18,9 @@ START = {
 
 
 class Fixer(object):
+    """
+    优化检测数据，供客户欣赏
+    """
 
     def __init__(self, configfile='config'):
 
@@ -32,8 +35,7 @@ class Fixer(object):
 
         if not os.path.exists(self.fileto):
             shutil.copy(self.filefrom, self.fileto)
-            self.save_config(START)
-            self.load_config()
+            self.flags = FLAGS
             self.wb = self.engine.Workbooks.Open(self.fileto)
         else:
             try:
@@ -41,45 +43,45 @@ class Fixer(object):
             except com_error:
                 self.wb = self.engine.Workbooks.Open(self.fileto)
 
-            self.load_config()
+            self.flags = self.load_flags()
             self.copy()
 
-    def load_config(self):
+    def load_flags(self):
         if os.path.exists(self.configfile):
             with open(self.configfile, 'rb') as fp:
-                self.config = pickle.load(fp)
+                flags = pickle.load(fp)
         else:
-            self.config = START
-            self.save_config(START)
+            flags = FLAGS
+        return flags
 
-    def save_config(self, config):
-        # pickle.dump(config, configfile)
+    def save_flags(self, config):
+        # pickle.dump(config, self.configfile)
         with open(self.configfile, 'wb') as fp:
             fp.write(pickle.dumps(config))
 
-    '''
-    def copy(self):
-        try:
-            shutil.copy(self.filefrom, self.fileto)
-        except PermissionError:
-            self.engine.Workbooks(self.fileto).Close(-1)
-            shutil.copy(self.filefrom, self.fileto)
-    '''
+    # def copy(self):
+    #    try:
+    #        shutil.copy(self.filefrom, self.fileto)
+    #    except PermissionError:
+    #        self.engine.Workbooks(self.fileto).Close(-1)
+    #        shutil.copy(self.filefrom, self.fileto)
 
     def copy(self):
+        """ 执行数据拷贝，原样拷贝 """
         try:
             wb_from = self.engine.Workbooks(self.filefrom)
         except com_error:
             wb_from = self.engine.Workbooks.Open(self.filefrom)
 
-        for sheetname, start in self.config.items():
+        for sheetname, start in self.flags.items():
             ws_from = wb_from.Worksheets(sheetname)
             ws_to = self.wb.Worksheets(sheetname)
 
             max_row = ws_from.UsedRange.Rows.Count
 
+            # 获取30列的数据
             data = ws_from.Range(ws_from.Cells(start, 1),
-                                 ws_from.Cells(max_row, 26)).Value
+                                 ws_from.Cells(max_row, 30)).Value
 
             self.set_range_value(ws_to, 1, start, data)
 
@@ -91,16 +93,17 @@ class Fixer(object):
         '''
         bottomRow = topRow + len(data) - 1
         rightCol = leftCol + len(data[0]) - 1
-        ws.Range(ws.Cells(topRow, leftCol), ws.Cells(
-            bottomRow, rightCol)).Value = data
+        ws.Range(ws.Cells(topRow, leftCol),
+                 ws.Cells(bottomRow, rightCol)).Value = data
 
     def run(self, config):
-        starts = dict()
+        print('生成中，请不要关闭此窗口')
+        starts = {}
         for sheetname, settings in config.items():
             ws = self.wb.Worksheets(sheetname)
-            min_row = self.config.get(sheetname)
+            min_row = self.flags.get(sheetname)
             max_row = ws.UsedRange.Rows.Count
-            print('min_row=%s, max_row=%s' % (min_row, max_row))
+            print('%s: min_row=%s, max_row=%s' % (sheetname, min_row, max_row))
 
             new_start = min_row
             for row in range(min_row, max_row):
@@ -110,12 +113,11 @@ class Fixer(object):
                         done_cell = ws.Cells(row, item['done_col'])
                         if done_cell.Value:
                             new_start = row
-                        getattr(self, item['func'])(
-                            cell, done_cell, *item['args'])
+                        getattr(self, item['func'])(cell, done_cell, *item['args'])
                     else:
                         getattr(self, item['func'])(cell, *item['args'])
             starts[sheetname] = new_start
-        self.save_config(starts)
+        self.save_flags(starts)
 
     def fix(self, cell, goodvalue):
         if cell.Value and cell.Value != goodvalue:
@@ -226,25 +228,25 @@ if __name__ == "__main__":
                 'args': [range(9, 13)]
             },
             {
-                'col': 23,  # 硬度
-                'done_col': 18,
+                'col': 24,  # 硬度
+                'done_col': 18,   # 80 min 显影标志着做完
                 'func': 'stuff',
                 'args': ['6H']
             },
             {
-                'col': 24,  # 附着力
+                'col': 25,  # 附着力
                 'done_col': 18,
                 'func': 'stuff',
                 'args': ['100%']
             },
             {
-                'col': 25,   # 耐焊性
+                'col': 26,   # 耐焊性
                 'done_col': 18,
                 'func': 'stuff',
                 'args': ['PASS']
             },
             {
-                'col': 26,   # 耐化性
+                'col': 27,   # 耐化性
                 'done_col': 18,
                 'func': 'stuff',
                 'args': ['PASS']
@@ -278,7 +280,7 @@ if __name__ == "__main__":
             },
             {
                 'col': 11,   # 硬度
-                'done_col': 16,
+                'done_col': 16,  # 显影完成 标志着做完
                 'func': 'stuff',
                 'args': [['1H', '2H']]
             },
