@@ -7,10 +7,10 @@ Created on 2016年6月4日
 '''
 from datetime import datetime
 
-from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
-                        create_engine)
+from sqlalchemy import (Column, DateTime, Float, Integer, String,
+                        Text, create_engine)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 engine = create_engine("sqlite:///data/database.sdb3", convert_unicode=True)
 db_session = scoped_session(sessionmaker(autocommit=False,
@@ -18,33 +18,6 @@ db_session = scoped_session(sessionmaker(autocommit=False,
                                          bind=engine))
 Base = declarative_base(bind=engine)
 Base.query = db_session.query_property()
-
-
-class Hebing(Base):
-    __tablename__ = 'hebing'
-    id = Column(Integer, primary_key=True)
-    code = Column(String)
-    customer = Column(String)
-
-    cg_2012 = Column(Float)
-    yf_2012 = Column(Float)
-    ye_2012 = Column(Float)
-
-    cg_2013 = Column(Float)
-    yf_2013 = Column(Float)
-    ye_2013 = Column(Float)
-
-    cg_2014 = Column(Float)
-    yf_2014 = Column(Float)
-    ye_2014 = Column(Float)
-
-    cg_2015 = Column(Float)
-    yf_2015 = Column(Float)
-    ye_2015 = Column(Float)
-
-    cg_2016 = Column(Float)
-    yf_2016 = Column(Float)
-    ye_2016 = Column(Float)
 
 
 class IQCMaterial(Base):
@@ -56,6 +29,16 @@ class IQCMaterial(Base):
     qc_method = Column(String(250))
 
 
+class ProductKind(Base):
+    __tablename__ = 'product_kinds'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(64), default='')
+    slug = Column(String(64), default='', index=True)
+    alias_list = Column(String(255), default='')
+    template = Column(String(255), default='')
+    fqc_items = Column(Text)
+
+
 class Product(Base):
     '''产品信息'''
     __tablename__ = 'products'
@@ -63,7 +46,7 @@ class Product(Base):
     internal_name = Column(String(64), default='', index=True)  # 内部品名（生产单品名）
     market_name = Column(String(64), default='')  # 销售品名
     category = Column(String(64), default='')  # 类别
-    template = Column(String(64), default='')  # 检验报告模板
+    template = Column(String(64), default='')  # 检验报告模板 slug  历史原因写成了 template
     viscosity = Column(String(64), default='0')  # 检验报告粘度
     viscosity_width = Column(String(64), default='0')  # 粘度幅度
     part_a = Column(String(64), default='')

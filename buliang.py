@@ -6,15 +6,17 @@ Created on 2016年7月4日
 @author: Wan
 '''
 import os
-from openpyxl import load_workbook, Workbook
+import re
 from datetime import datetime
+
+from openpyxl import Workbook, load_workbook
 from sqlalchemy.sql.expression import and_
 
 from common import module_path
-from database import BuliangFangan, db_session, CangkuLiushui, ProductLiushui,\
-    BuliangKuchun, reset_table, ProductClassification
+from database import (BuliangFangan, BuliangKuchun, CangkuLiushui,
+                      ProductClassification, ProductLiushui, db_session,
+                      reset_table)
 from win32office import Excel
-import re
 
 data_dir = os.path.join(module_path(), 'data')
 
@@ -340,13 +342,13 @@ def tongji_ruku(dest_filename='empty_book.xlsx'):
 
 if __name__ == "__main__":
     # init_buliang_fangan()
-    #load_buliang_kuchun(os.path.join(data_dir, '惠东不良品仓6月份流水帐2.xlsx'), start_row=4, stop_row=141)
-    #load_cangku_liushui(os.path.join(data_dir, '7月份流水账.xlsx'), start_row=4, stop_row=4611)
-    #load_product_liushui(os.path.join(data_dir, '7月份生产跟踪损耗日报表.xlsx'), start_row=15, stop_row=1509)
-    #jisuan_ruku_liushui(os.path.join(data_dir, '6月理论处理量.xlsx'))
-    #jisuan_product_liushui(os.path.join(data_dir, '6月理论处理量.xlsx'))
-    #load_product_class(os.path.join(data_dir, '产品分类更新日期（20160721）-1.xls'))
-    #chuli_liushuizhang(os.path.join(data_dir, '7月份流水账.xlsx'))
+    # load_buliang_kuchun(os.path.join(data_dir, '惠东不良品仓6月份流水帐2.xlsx'), start_row=4, stop_row=141)
+    # load_cangku_liushui(os.path.join(data_dir, '7月份流水账.xlsx'), start_row=4, stop_row=4611)
+    # load_product_liushui(os.path.join(data_dir, '7月份生产跟踪损耗日报表.xlsx'), start_row=15, stop_row=1509)
+    # jisuan_ruku_liushui(os.path.join(data_dir, '6月理论处理量.xlsx'))
+    # jisuan_product_liushui(os.path.join(data_dir, '6月理论处理量.xlsx'))
+    # load_product_class(os.path.join(data_dir, '产品分类更新日期（20160721）-1.xls'))
+    # chuli_liushuizhang(os.path.join(data_dir, '7月份流水账.xlsx'))
     tongji_ruku(os.path.join(data_dir, '生产量与入库量分析表.xlsx'))
 
     pass

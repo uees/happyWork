@@ -54,6 +54,15 @@ def is_number(value):
         return True
 
 
+def is_number_like(value):
+    try:
+        int(value)
+    except:
+        return False
+    else:
+        return True
+
+
 def null2str(value):
     if value is None:
         value = ''
