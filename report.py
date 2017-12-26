@@ -99,7 +99,8 @@ class Generator(object):
                 self.generate_report(new_product)
 
     def generate_景旺(self, product):
-        if product['market_name'] == '6GHB HF' or product['market_name'] == 'MG55':
+        if product['market_name'] == '6GHB HF' or product['market_name'] == 'MG55' or\
+                product['internal_name'].find('A-9060C01') >= 0:
             if not product['kind'].endswith('_jw'):
                 new_product = product.copy()
                 new_product["kind"] = '%s_jw' % product['kind']
@@ -330,7 +331,7 @@ class Generator(object):
     def _cmd_add(self, internal_name):
         market_name = rlinput("销售品名(打在检验报告上的名字，例如‘8G04建业’的销售名为8G 04):\n >>>")
         conf = self._input_kind()
-        viscosity = self._input_number("粘度值")
+        viscosity = self._input_number("粘度值:")
         viscosity_width = self._input_number("粘度上下幅度:")
 
         product_obj = Product(internal_name=internal_name,
@@ -392,7 +393,8 @@ class Generator(object):
 
     def get_template_by_slug(self, slug):
         conf = self.get_conf(slug)
-        return self.get_template(conf.get('template'))
+        if conf:
+            return self.get_template(conf.get('template'))
 
     def get_conf(self, slug):
         for item in CONF:

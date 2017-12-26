@@ -212,6 +212,10 @@ CONF = [
         'template': 'THW-5D35',
     },
     {
+        'slug': 'di7j84',
+        'template': 'DI-7J84',
+    },
+    {
         'slug': 'xsj',
         'template': '稀释剂',
         'alias': ['XSJ'],

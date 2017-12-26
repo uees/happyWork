@@ -57,7 +57,8 @@ def init_product_data(file, sheet):
                               category=category,
                               part_a=part_a,
                               part_b=part_b,
-                              ratio=ratio)
+                              ratio=ratio,
+                              color=color)
             db_session.add(product)
     db_session.commit()
     print("插入了 %s 行数据到data/database.sdb3." % str(ws.max_row - 1))
