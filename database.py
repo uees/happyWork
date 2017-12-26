@@ -7,8 +7,7 @@ Created on 2016年6月4日
 '''
 from datetime import datetime
 
-from sqlalchemy import (Column, DateTime, Float, Integer, String,
-                        Text, create_engine)
+from sqlalchemy import Column, DateTime, Float, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -29,16 +28,6 @@ class IQCMaterial(Base):
     qc_method = Column(String(250))
 
 
-class ProductKind(Base):
-    __tablename__ = 'product_kinds'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(64), default='')
-    slug = Column(String(64), default='', index=True)
-    alias_list = Column(String(255), default='')
-    template = Column(String(255), default='')
-    fqc_items = Column(Text)
-
-
 class Product(Base):
     '''产品信息'''
     __tablename__ = 'products'
@@ -52,6 +41,7 @@ class Product(Base):
     part_a = Column(String(64), default='')
     part_b = Column(String(64), default='')
     ratio = Column(Float, default=0)  # ratio = part_b/part_a
+    color = Column(String(64), default='')
 
 
 class BuliangFangan(Base):

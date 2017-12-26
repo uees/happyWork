@@ -37,28 +37,30 @@ def insert_product_to_xlsx(product, filename, sheet):
     ws.cell("C{}".format(index), value=product.viscosity)
     ws.cell("D{}".format(index), value=product.viscosity_width)
     ws.cell("E{}".format(index), value=product.market_name)
+    ws.cell("J{}".format(index), value=product.color)
     wb.save(filename)
 
 
 def init_product_data(file, sheet):
+    """ 从 database.xlsx 读取数据 """
     wb = load_workbook(filename=file)
     ws = wb.get_sheet_by_name(sheet)
-    for row in ws.iter_rows('A2:I{}'.format(ws.max_row)):
-        (internal_name, template, viscosity,
-         viscosity_width, market_name, category,
-         part_a, part_b, ratio) = [cell.value for cell in row]
-        product = Product(internal_name=internal_name,
-                          template=template,
-                          viscosity=viscosity,
-                          viscosity_width=viscosity_width,
-                          market_name=market_name,
-                          category=category,
-                          part_a=part_a,
-                          part_b=part_b,
-                          ratio=ratio)
-        db_session.add(product)
+    for row in ws.iter_rows('A2:J{}'.format(ws.max_row)):
+        (internal_name, template, viscosity, viscosity_width, market_name, category,
+         part_a, part_b, ratio, color) = [cell.value for cell in row]
+        if internal_name:
+            product = Product(internal_name=internal_name,
+                              template=template,
+                              viscosity=viscosity,
+                              viscosity_width=viscosity_width,
+                              market_name=market_name,
+                              category=category,
+                              part_a=part_a,
+                              part_b=part_b,
+                              ratio=ratio)
+            db_session.add(product)
     db_session.commit()
-    print("插入了 %s行数据到data/database.sdb3." % str(ws.max_row - 1))
+    print("插入了 %s 行数据到data/database.sdb3." % str(ws.max_row - 1))
 
 
 def init_materials(filename, sheet):

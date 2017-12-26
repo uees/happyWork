@@ -74,6 +74,5 @@ tmp/
 reports/
 templates/
 data/
-config.py
 config
 tags

@@ -61,11 +61,13 @@ class Generator(object):
                 continue
 
             self.generate_report(product)
+            self.generate_normal(product)
 
             # 专用报告
             self.generate_明阳(product)
             self.generate_达进(product)
             self.generate_景旺(product)
+            self.generate_健鼎(product)
 
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
@@ -79,44 +81,64 @@ class Generator(object):
             print("war:文件已经被打开，无法写入")
 
     def generate_明阳(self, product):
-        new_product = {}
         if product['internal_name'].find('A-9060C01') >= 0:
-            new_product.update(product)
-            new_product["kind"] = "a9060c_my"
-            new_product['template'] = self.get_template_by_slug(new_product["kind"])
-            new_product["ext_info"] = "(明阳专用报告 粘度为秒)"
-            self.generate_report(new_product)
+            if not product['kind'].endswith('_my'):
+                new_product = product.copy()
+                new_product["kind"] = '%s_my' % product['kind']
+                new_product['template'] = self.get_template_by_slug(new_product["kind"])
+                self.generate_report(new_product)
 
     def generate_达进(self, product):
-        new_product = {}
-        if product['market_name'] == '8BL2' or product['market_name'] == '8WL5 01':
-            new_product.update(product)
-            new_product["kind"] = "h8100_dj"
-            new_product['template'] = self.get_template_by_slug(new_product["kind"])
-            new_product["ext_info"] = "(达进专用报告)"
-            self.generate_report(new_product)
-        elif product['market_name'] == '44G' or product['market_name'] == '6GHB HF':
-            new_product.update(product)
-            new_product["kind"] = "h9100_dj"
-            new_product['template'] = self.get_template_by_slug(new_product["kind"])
-            new_product["ext_info"] = "(达进专用报告)"
-            self.generate_report(new_product)
+        if product['market_name'] == '8BL2' or product['market_name'] == '8WL5 01' or\
+                product['market_name'] == '44G' or product['market_name'] == '6GHB HF':
+
+            if not product['kind'].endswith('_dj'):
+                new_product = product.copy()
+                new_product["kind"] = '%s_dj' % product['kind']
+                new_product['template'] = self.get_template_by_slug(new_product["kind"])
+                self.generate_report(new_product)
 
     def generate_景旺(self, product):
-        new_product = {}
         if product['market_name'] == '6GHB HF' or product['market_name'] == 'MG55':
-            new_product.update(product)
-            new_product["kind"] = "h9100_jw"
-            new_product['template'] = self.get_template_by_slug(new_product["kind"])
-            new_product["ext_info"] = "(景旺专用报告)"
+            if not product['kind'].endswith('_jw'):
+                new_product = product.copy()
+                new_product["kind"] = '%s_jw' % product['kind']
+                new_product['template'] = self.get_template_by_slug(new_product["kind"])
+                self.generate_report(new_product)
+
+    def generate_健鼎(self, product):
+        if product['internal_name'].find('健鼎') >= 0 or \
+                product['market_name'] == 'A-9060B':
+
+            if not product['kind'].endswith('_jd'):  # 这时没有标注的才创建, 标注过的已经创建了
+                new_product = product.copy()
+                new_product["kind"] = '%s_jd' % product['kind']
+                new_product['template'] = self.get_template_by_slug(new_product["kind"])
+                self.generate_report(new_product)
+
+    def generate_normal(self, product):
+        f = product["kind"].find('_')
+        if f > 0:
+            new_product = product.copy()
+            new_product["kind"] = product["kind"][:f]
+            new_product['ext_info'] = ''
             self.generate_report(new_product)
 
     def generate_report(self, product):
         ''' 生成检验报告 '''
-        template = self.get_template_by_slug(product["kind"])
+        conf = self.get_conf(product["kind"])
+        if not conf:
+            return print('无效的产品类别')
+
+        if conf.get('customer'):
+            product['ext_info'] += '【%s专用报告】' % conf.get('customer')
+
+        if conf.get('ext_info'):
+            product['ext_info'] += conf.get('ext_info')
+
+        template = self.get_template(conf.get('template'))
         if not os.path.exists(template):
-            print("%s 模板文件不存在！" % product["kind"])
-            return
+            return print("%s 模板文件不存在！" % product["kind"])
 
         tp = WTemplate(template)
         tp.replace(product)
@@ -129,7 +151,7 @@ class Generator(object):
         filepath = '{}/{}'.format(today_report_dir, filename)
 
         if os.path.exists(filepath):
-            print("{}{}已经存在了{}".format(bcolors.WARNING, filename, bcolors.ENDC))
+            print("{}已经存在了".format(filename))
         else:
             tp.save(filepath)
             print("报告已经生成：{}".format(filename))
@@ -151,12 +173,11 @@ class Generator(object):
         if is_number(batch):
             batch = str(int(batch))
         else:
-            print("{}警告：Line {} 批号可能不是数字.{}".format(bcolors.WARNING, index, bcolors.ENDC))
+            print("警告：Line {} 批号可能不是数字.".format(index))
 
         if len(batch) != 8 and len(batch) != 6:
             ext_info += "(批号格式可能不正确)"
-            print("{}Line{}:卧槽,批号格式不一般,小心地雷!!@#$@#&%{}".format(
-                bcolors.FAIL, index, bcolors.ENDC))
+            print("Line{}:卧槽,批号格式不一般,小心地雷!!@#$@#&%".format(index))
 
         if is_number(amount):
             # amount = '发货数量:{}kg'.format(int(amount))
@@ -165,8 +186,7 @@ class Generator(object):
             amount = ''
 
         if not isinstance(product_date, datetime):
-            print("{}Line{}:时间格式不正确,已经为你设置为空串.{}".format(
-                bcolors.WARNING, index, bcolors.ENDC))
+            print("Line{}:时间格式不正确,已经为你设置为空串.".format(index))
             product_date = ''
             ext_info += "【注意：生产日期没填】"
         else:
@@ -194,6 +214,98 @@ class Generator(object):
                     product_date=product_date,
                     validity_date=validity_date,
                     ext_info=ext_info)
+
+    def query_info(self, given):
+        '''
+        查询数据库, 追加更多信息
+        :param: given 是从list.xlsx 中查出的数据
+        '''
+        products = db.search_product(given['internal_name'])
+        if products.count() == 0:
+            print('数据库中无记录,请输入命令. \n 添加条目：add \n 跳过此行：break \n 编辑字段：edit \n 退出：任意其他字符')
+            cmd = rlinput("Command:")
+            if cmd == "add":
+                product_obj = self._cmd_add(given['internal_name'])
+
+            elif cmd == "break":
+                return
+
+            elif cmd == "edit":
+                self._cmd_edit(given)
+                return self.query_info(given)
+
+            else:
+                sys.exit()
+
+        elif products.count() == 1:
+            product_obj = products.one()
+
+        else:
+            ids = []
+            for product in products.all():
+                ids.append(product.id)
+                space = " " * (20 - len(product.internal_name)) if len(product.internal_name) < 20 else ""
+                print("\t %s%s\t ID:%s\t %s±%sdPa.s" % (product.internal_name,
+                                                        space,
+                                                        product.id,
+                                                        product.viscosity,
+                                                        product.viscosity_width))
+
+            while True:
+                print("小提示: 你可以输入 quit 立即退出, 要编辑字段输入 edit")
+                pid = rlinput("please choise a ID:")
+                if pid == "quit":
+                    sys.exit()
+
+                elif pid == "edit":
+                    self._cmd_edit(given)
+                    return self.query_info(given)
+
+                if self._validate_id(pid, ids):
+                    break
+
+            product_obj = db.get_product_by_id(pid)
+            print("\t 你选择了(%s, %s±%sdPa.s)" % (product_obj.internal_name,
+                                               product_obj.viscosity,
+                                               product_obj.viscosity_width))
+
+        given['market_name'] = product_obj.market_name
+        given['kind'] = product_obj.template
+        given['template'] = self.get_template_by_slug(given["kind"])
+        given['viscosity'] = product_obj.viscosity
+        given['viscosity_limit'] = "%s±%s" % (product_obj.viscosity, product_obj.viscosity_width)
+        given['qc_date'] = datetime.strftime(datetime.now(), '%Y/%m/%d')
+        given['ftir'] = '{}%'.format(round(random.uniform(99.3, 100), 2))
+        given['color'] = ''
+
+        if given['kind'].find('_') == -1:
+            given = self.given_修饰(given, product_obj)
+
+        return given
+
+    def given_修饰(self, given, product_obj):
+        """ 征对性修饰 """
+        if product_obj.market_name.find('SP8') == 0 or \
+                product_obj.market_name == 'A-9060A 01' or \
+                product_obj.market_name == '60G':
+            given['ext_info'] += '(深南电路要求打发货数量)'
+
+        if product_obj.market_name.find('28GHB') >= 0 or \
+                product_obj.market_name.find('30GHB') >= 0 or \
+                product_obj.market_name.find('SP20HF') >= 0:
+            given['ext_info'] += '(宏华胜要求打发货数量)'
+
+        if product_obj.market_name == '8BL' or \
+                product_obj.market_name == 'GH3' or \
+                product_obj.market_name.find('G6') == 0 or \
+                product_obj.market_name.find('SP02') == 0 or \
+                product_obj.market_name.find('GH40') == 0 or \
+                product_obj.market_name.find('MG31') == 0 or \
+                product_obj.market_name.find('23GHB') == 0 or \
+                product_obj.internal_name.find('崇达') >= 0:
+            given['ext_info'] += '(崇达要求打发货数量)'
+
+        return given
 
     def _input_kind(self):
         kind = rlinput("类别(H-8100/H-9100/A-2000/K-2500/A-2100/A-9060A/A-9000/\nUVS-1000/TM-3100/TS-3000/UVM-1800):\n >>>")
@@ -249,97 +361,6 @@ class Generator(object):
             return False
         return True
 
-    def query_info(self, given):
-        '''
-        查询数据库, 追加更多信息
-        :param: given 是从list.xlsx 中查出的数据
-        '''
-        products = db.search_product(given['internal_name'])
-        if products.count() == 0:
-            print('数据库中无记录,请输入命令. \n 添加条目：add \n 跳过此行：break \n 编辑字段：edit \n 退出：任意其他字符')
-            cmd = rlinput("Command:")
-            if cmd == "add":
-                product_obj = self._cmd_add(given['internal_name'])
-
-            elif cmd == "break":
-                return
-
-            elif cmd == "edit":
-                self._cmd_edit(given)
-                return self.query_info(given)
-
-            else:
-                sys.exit()
-
-        elif products.count() == 1:
-            product_obj = products.one()
-
-        else:
-            ids = []
-            for product in products.all():
-                ids.append(product.id)
-                space = " " * (20 - len(product.internal_name)) if len(product.internal_name) < 20 else ""
-                print("\t %s%s\t ID:%s\t %s±%sdPa.s" % (product.internal_name,
-                                                        space,
-                                                        product.id,
-                                                        product.viscosity,
-                                                        product.viscosity_width))
-
-            while True:
-                print("小提示: 你可以输入 qui t立即退出, 要编辑字段输入 edit")
-                pid = rlinput("please choise a ID:")
-                if pid == "quit":
-                    sys.exit()
-
-                elif pid == "edit":
-                    self._cmd_edit(given)
-                    return self.query_info(given)
-
-                if self._validate_id(pid, ids):
-                    break
-
-            product_obj = db.get_product_by_id(pid)
-            print("\t 你选择了(%s, %s±%sdPa.s)" % (product_obj.internal_name,
-                                               product_obj.viscosity,
-                                               product_obj.viscosity_width))
-
-        given['market_name'] = product_obj.market_name
-        given['kind'] = product_obj.template
-        given['template'] = self.get_template_by_slug(given["kind"])
-        given['viscosity'] = product_obj.viscosity
-        given['viscosity_limit'] = "%s±%s" % (product_obj.viscosity, product_obj.viscosity_width)
-        given['qc_date'] = datetime.strftime(datetime.now(), '%Y/%m/%d')
-        given['ftir'] = '{}%'.format(round(random.uniform(99.3, 100), 2))
-
-        given = self.given_修饰(given, product_obj)
-
-        return given
-
-    def given_修饰(self, given, product_obj):
-
-        # 征对性修饰
-        if product_obj.market_name.find('SP8') == 0 or \
-                product_obj.market_name == 'A-9060A 01' or \
-                product_obj.market_name == '60G':
-            given['ext_info'] += '(深南电路要求打发货数量)'
-
-        if product_obj.market_name.find('28GHB') >= 0 or \
-                product_obj.market_name.find('30GHB') >= 0 or \
-                product_obj.market_name.find('SP20HF') >= 0:
-            given['ext_info'] += '(宏华胜要求打发货数量)'
-
-        if product_obj.market_name == '8BL' or \
-                product_obj.market_name == 'GH3' or \
-                product_obj.market_name.find('G6') == 0 or \
-                product_obj.market_name.find('SP02') == 0 or \
-                product_obj.market_name.find('GH40') == 0 or \
-                product_obj.market_name.find('MG31') == 0 or \
-                product_obj.market_name.find('23GHB') == 0 or \
-                product_obj.internal_name.find('崇达') >= 0:
-            given['ext_info'] += '(崇达要求打发货数量)'
-
-        return given
-
     def _set_report_info(self, product):
         ''' 写入部分信息到指定行 '''
         self._ws.cell('G{}'.format(
@@ -386,16 +407,6 @@ class Generator(object):
     def get_template(self, name):
         ''' 获取模板文件路径 '''
         return os.path.join(self.app_path, "templates/%s.docx" % name)
-
-
-class bcolors:
-    HEADER = '\033[95m'           # 粉色
-    OKBLUE = '\033[94m'           # 蓝色
-    OKGREEN = '\033[92m'          # 绿色
-    WARNING = '\033[93m'          # 黄色
-    FAIL = '\033[91m'             # 红色
-    BOLD = '\033[1m'              # 粗体
-    ENDC = '\033[0m'              # 结束
 
 
 if __name__ == "__main__":
