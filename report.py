@@ -8,7 +8,9 @@ import re
 import sys
 from datetime import datetime
 
+import win32com.client
 from openpyxl import load_workbook
+from pywintypes import com_error
 
 import data_warp as db
 import iqc_report
@@ -72,13 +74,7 @@ class Generator(object):
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
 
-        try:
-            # 最後save提高效率 保存采集记录
-            self._wb.save(self._product_wb_file)
-            # 保存 fqc 记录
-            # self.fqc_g.save()
-        except PermissionError:
-            print("war:文件已经被打开，无法写入")
+        self.save()
 
     def generate_明阳(self, product):
         if product['internal_name'].find('A-9060C01') >= 0:
@@ -118,6 +114,8 @@ class Generator(object):
                 self.generate_report(new_product)
 
     def generate_normal(self, product):
+        if product['kind'].endswith('_jx'):  # 金像是设置的主剂粘度, 只此一家用, 暂时不生成 normal
+            return
         f = product["kind"].find('_')
         if f > 0:
             new_product = product.copy()
@@ -223,20 +221,22 @@ class Generator(object):
         '''
         products = db.search_product(given['internal_name'])
         if products.count() == 0:
-            print('数据库中无记录,请输入命令. \n 添加条目：add \n 跳过此行：break \n 编辑字段：edit \n 退出：任意其他字符')
-            cmd = rlinput("Command:")
-            if cmd == "add":
-                product_obj = self._cmd_add(given['internal_name'])
+            while True:
+                print('数据库中无记录,请输入命令. \n 添加条目：add \n 跳过此行：break \n 编辑字段：edit \n 退出：quit')
+                cmd = rlinput("Command:")
+                if cmd == "add":
+                    product_obj = self._cmd_add(given['internal_name'])
+                    break
 
-            elif cmd == "break":
-                return
+                elif cmd == "break":
+                    return
 
-            elif cmd == "edit":
-                self._cmd_edit(given)
-                return self.query_info(given)
+                elif cmd == "edit":
+                    self._cmd_edit(given)
+                    return self.query_info(given)
 
-            else:
-                sys.exit()
+                elif cmd == "quit":
+                    self.exit()
 
         elif products.count() == 1:
             product_obj = products.one()
@@ -256,13 +256,13 @@ class Generator(object):
                 print("小提示: 你可以输入 quit 立即退出, 要编辑字段输入 edit")
                 pid = rlinput("please choise a ID:")
                 if pid == "quit":
-                    sys.exit()
+                    self.exit()
 
                 elif pid == "edit":
                     self._cmd_edit(given)
                     return self.query_info(given)
 
-                if self._validate_id(pid, ids):
+                elif self._validate_id(pid, ids):
                     break
 
             product_obj = db.get_product_by_id(pid)
@@ -309,7 +309,8 @@ class Generator(object):
         return given
 
     def _input_kind(self):
-        kind = rlinput("类别(H-8100/H-9100/A-2000/K-2500/A-2100/A-9060A/A-9000/\nUVS-1000/TM-3100/TS-3000/UVM-1800):\n >>>")
+        kind = rlinput("类别(H-8100/H-9100/A-2000/K-2500/A-2100/A-9060A/A-9000/\n"
+                       "UVS-1000/TM-3100/TS-3000/UVM-1800):\n >>>")
 
         conf = self.get_conf(kind)
         if not conf:
@@ -364,16 +365,32 @@ class Generator(object):
 
     def _set_report_info(self, product):
         ''' 写入部分信息到指定行 '''
-        self._ws.cell('G{}'.format(
-            self.index)).value = product['internal_name']
-        self._ws.cell('H{}'.format(
-            self.index)).value = product['viscosity_limit']
-        self._ws.cell('I{}'.format(
-            self.index)).value = product['product_date']
-        self._ws.cell('J{}'.format(
-            self.index)).value = product['validity_date']
-        self._ws.cell('K{}'.format(
-            self.index)).value = product['qc_date']
+        self._ws.cell('G{}'.format(self.index)).value = product['internal_name']
+        self._ws.cell('H{}'.format(self.index)).value = product['viscosity_limit']
+        self._ws.cell('I{}'.format(self.index)).value = product['product_date']
+        self._ws.cell('J{}'.format(self.index)).value = product['validity_date']
+        self._ws.cell('K{}'.format(self.index)).value = product['qc_date']
+
+    def exit(self):
+        self.save()
+        sys.exit()
+
+    def save(self):
+        self.close_excel()
+        self._wb.save(self._product_wb_file)
+
+    def close_excel(self):
+        engine = win32com.client.Dispatch('Excel.Application')
+        engine.DisplayAlerts = False
+
+        try:
+            wb = engine.Workbooks(self._product_wb_file)
+        except com_error:
+            pass
+        else:
+            wb.Close(1)
+        finally:
+            engine.Quit()
 
     def get_today_report_dir_path(self):
         '''自动创建并返回当日报告文件夹路径'''
@@ -414,17 +431,16 @@ class Generator(object):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--index", type=int, help="excel中需要生成报告的起始行")
-    parser.add_argument("--create_all", action="store_true",
-                        default=False, help="初始化数据库")
+    parser.add_argument("--create_all", action="store_true", default=False,
+                        help="初始化数据库")
     parser.add_argument("--reset_table", help="重置单个表")
-    parser.add_argument("--init_products", action="store_true",
-                        default=False, help="从xlsx文件中采集数据")
-    parser.add_argument("--init_materials", action="store_true",
-                        default=False, help="从xlsx文件中采集IQC检测要求数据")
+    parser.add_argument("--init_products", action="store_true", default=False,
+                        help="从xlsx文件中采集数据")
+    parser.add_argument("--init_materials", action="store_true", default=False,
+                        help="从xlsx文件中采集IQC检测要求数据")
 
     group = parser.add_argument_group('iqc')
-    group.add_argument("--iqc", action="store_true",
-                       default=False, help="创建IQC报告")
+    group.add_argument("--iqc", action="store_true", default=False, help="创建IQC报告")
     group.add_argument('-f', "--filename", help="IQC流水文件")
     group.add_argument('-e', "--end_row", type=int, help="IQC流水文件结束行")
     # subparsers = parser.add_subparsers(help='commands')
