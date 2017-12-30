@@ -277,7 +277,7 @@ class Generator(object):
         given['viscosity_limit'] = "%s±%s" % (product_obj.viscosity, product_obj.viscosity_width)
         given['qc_date'] = datetime.strftime(datetime.now(), '%Y/%m/%d')
         given['ftir'] = '{}%'.format(round(random.uniform(99.3, 100), 2))
-        given['color'] = ''
+        given['color'] = product_obj.color or ''
 
         if given['kind'].find('_') == -1:
             given = self.given_修饰(given, product_obj)
