@@ -23,6 +23,10 @@ def get_product_by_id(pid):
     return Product.query.filter_by(id=pid).first()
 
 
+def get_product_by_internal_name(internal_name):
+    return Product.query.filter_by(internal_name=internal_name).first()
+
+
 def insert_product(product):
     db_session.add(product)
     db_session.commit()

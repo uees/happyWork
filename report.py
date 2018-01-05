@@ -222,8 +222,12 @@ class Generator(object):
         products = db.search_product(given['internal_name'])
         if products.count() == 0:
             while True:
-                print('数据库中无记录,请输入命令. \n 添加条目：add \n 跳过此行：break \n 编辑字段：edit \n 退出：quit')
-                cmd = rlinput("Command:")
+                print('\n数据库中无记录, 输入命令以继续.')
+                print("  添加条目 输入 add")
+                print("  编辑字段 输入 edit")
+                print("  跳过此行 输入 break")
+                print("  退出程序 输入 quit")
+                cmd = rlinput("命令:")
                 if cmd == "add":
                     product_obj = self._cmd_add(given['internal_name'])
                     break
@@ -238,37 +242,54 @@ class Generator(object):
                 elif cmd == "quit":
                     self.exit()
 
-        elif products.count() == 1:
-            product_obj = products.one()
-
         else:
-            ids = []
-            for product in products.all():
-                ids.append(product.id)
-                space = " " * (20 - len(product.internal_name)) if len(product.internal_name) < 20 else ""
-                print("\t %s%s\t ID:%s\t %s±%sdPa.s" % (product.internal_name,
-                                                        space,
-                                                        product.id,
-                                                        product.viscosity,
-                                                        product.viscosity_width))
+            product_obj = db.get_product_by_internal_name(given['internal_name'])
 
-            while True:
-                print("小提示: 你可以输入 quit 立即退出, 要编辑字段输入 edit")
-                pid = rlinput("please choise a ID:")
-                if pid == "quit":
-                    self.exit()
+            if not product_obj:
+                ids = []
+                for product in products.all():
+                    ids.append(product.id)
+                    space = " " * (20 - len(product.internal_name)) if len(product.internal_name) < 20 else ""
+                    print("\t %s%s\t ID:%s\t %s±%sdPa.s" % (product.internal_name,
+                                                            space,
+                                                            product.id,
+                                                            product.viscosity,
+                                                            product.viscosity_width))
 
-                elif pid == "edit":
-                    self._cmd_edit(given)
-                    return self.query_info(given)
+                while True:
+                    print("\n可能是以上%s个中的一个，请选择产品ID" % len(ids))
+                    print("如果产品不在上面列出，你还可以输入以下命令:")
+                    print("  添加条目 输入 add")
+                    print("  编辑字段 输入 edit")
+                    print("  跳过此行 输入 break")
+                    print("  退出程序 输入 quit")
+                    pid = rlinput("请选择产品ID:")
+                    if pid == "quit":
+                        self.exit()
 
-                elif self._validate_id(pid, ids):
-                    break
+                    if pid == "add":
+                        product_obj = self._cmd_add(given['internal_name'])
+                        break
 
-            product_obj = db.get_product_by_id(pid)
-            print("\t 你选择了(%s, %s±%sdPa.s)" % (product_obj.internal_name,
-                                               product_obj.viscosity,
-                                               product_obj.viscosity_width))
+                    elif pid == "edit":
+                        self._cmd_edit(given)
+                        return self.query_info(given)
+
+                    elif pid == "break":
+                        return
+
+                    elif not pid:
+                        if len(ids) == 1:
+                            pid = ids[0]
+                            break
+
+                    elif self._validate_id(pid, ids):
+                        break
+
+                product_obj = db.get_product_by_id(pid)
+                print("\t 你选择了(%s, %s±%sdPa.s)" % (product_obj.internal_name,
+                                                   product_obj.viscosity,
+                                                   product_obj.viscosity_width))
 
         given['market_name'] = product_obj.market_name
         given['kind'] = product_obj.template
