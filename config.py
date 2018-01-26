@@ -234,6 +234,10 @@ CONF = [
         'alias': ['RDJ'],
     },
     {
+        'slug': 'rdi6000',
+        'template': 'RDI-6000',
+    },
+    {
         'slug': 'other',
         'template': '未定义',
     },

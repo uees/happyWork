@@ -221,12 +221,12 @@ class Generator(object):
         '''
         products = db.search_product(given['internal_name'])
         if products.count() == 0:
+            print('\n数据库中无记录, 输入命令以继续.')
+            print("  添加条目 输入 add")
+            print("  编辑字段 输入 edit")
+            print("  跳过此行 输入 break")
+            print("  退出程序 输入 quit")
             while True:
-                print('\n数据库中无记录, 输入命令以继续.')
-                print("  添加条目 输入 add")
-                print("  编辑字段 输入 edit")
-                print("  跳过此行 输入 break")
-                print("  退出程序 输入 quit")
                 cmd = rlinput("命令:")
                 if cmd == "add":
                     product_obj = self._cmd_add(given['internal_name'])
@@ -243,9 +243,17 @@ class Generator(object):
                     self.exit()
 
         else:
+            # 是否有名称完全匹配的
             product_obj = db.get_product_by_internal_name(given['internal_name'])
 
             if not product_obj:
+                print("请选择产品ID，可能是以下中的一个")
+                print("如果产品不在下面列出，你还可以输入以下命令:")
+                print("  添加条目 输入 add")
+                print("  编辑字段 输入 edit")
+                print("  跳过此行 输入 break")
+                print("  退出程序 输入 quit")
+                print('')
                 ids = []
                 for product in products.all():
                     ids.append(product.id)
@@ -257,12 +265,6 @@ class Generator(object):
                                                             product.viscosity_width))
 
                 while True:
-                    print("\n可能是以上%s个中的一个，请选择产品ID" % len(ids))
-                    print("如果产品不在上面列出，你还可以输入以下命令:")
-                    print("  添加条目 输入 add")
-                    print("  编辑字段 输入 edit")
-                    print("  跳过此行 输入 break")
-                    print("  退出程序 输入 quit")
                     pid = rlinput("请选择产品ID:")
                     if pid == "quit":
                         self.exit()
