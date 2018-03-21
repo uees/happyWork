@@ -1,8 +1,8 @@
 # coding=utf-8
-'''
+"""
   useage:
     python setup.py py2exe
-'''
+"""
 
 import glob
 from distutils.core import setup

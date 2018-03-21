@@ -22,32 +22,34 @@ from library import WTemplate
 
 
 class Generator(object):
-    ''' 检验报告生成器 '''
+    """ 检验报告生成器 """
 
     def __init__(self, start_index=None):
         self.start_index = start_index
+        self.index = 0
         self.app_path = module_path()
         self._product_wb_file = "%s/reports/list.xlsx" % self.app_path
         self._wb = load_workbook(self._product_wb_file)
         self._ws = None
         # self.fqc_g = FqcListGenerator('%s/reports/FQC&IQC检测记录.xlsx' % self.app_path)
 
-    def get_start_row(self, ws, flag_done_col=10):
-        max_row = ws.max_row
-        for row in range(max_row, 2, -1):
-            done_cell = ws.cell(row=row, column=flag_done_col)
-            if done_cell.value:
-                return row + 1
+    def get_start_row(self, flag_done_col=10):
+        if self._ws:
+            max_row = self._ws.max_row
+            for row in range(max_row, 2, -1):
+                done_cell = self._ws.cell(row=row, column=flag_done_col)
+                if done_cell.value:
+                    return row + 1
 
         # if all None, the done row is 2
         return 2
 
     def generate_reports(self, sheet="Sheet1"):
-        ''' 批量生成检验报告 '''
+        """ 批量生成检验报告 """
         self._ws = self._wb.get_sheet_by_name(sheet)
 
         if not self.start_index:
-            self.start_index = self.get_start_row(self._ws)
+            self.start_index = self.get_start_row()
 
         for index in range(self.start_index, self._ws.max_row + 1):
             print("\n------------------------------")
@@ -124,7 +126,7 @@ class Generator(object):
             self.generate_report(new_product)
 
     def generate_report(self, product):
-        ''' 生成检验报告 '''
+        """ 生成检验报告 """
         conf = self.get_conf(product["kind"])
         if not conf:
             return print('无效的产品类别')
@@ -156,7 +158,7 @@ class Generator(object):
             print("报告已经生成：{}".format(filename))
 
     def get_product_info(self, index):
-        ''' 从 list.xlsx 获取指定行的产品输入信息 '''
+        """ 从 list.xlsx 获取指定行的产品输入信息 """
         validity_date = ''
         ext_info = ''
 
@@ -215,10 +217,10 @@ class Generator(object):
                     ext_info=ext_info)
 
     def query_info(self, given):
-        '''
+        """
         查询数据库, 追加更多信息
         :param: given 是从list.xlsx 中查出的数据
-        '''
+        """
         products = db.search_product(given['internal_name'])
         if products.count() == 0:
             print('\n数据库中无记录, 输入命令以继续.')
@@ -288,7 +290,9 @@ class Generator(object):
                     elif self._validate_id(pid, ids):
                         break
 
-                product_obj = db.get_product_by_id(pid)
+                if not product_obj and is_number_like(pid):
+                    product_obj = db.get_product_by_id(pid)
+
                 print("\t 你选择了(%s, %s±%sdPa.s)" % (product_obj.internal_name,
                                                    product_obj.viscosity,
                                                    product_obj.viscosity_width))
@@ -377,7 +381,7 @@ class Generator(object):
             print("war:文件已经被打开，无法写入")
 
     def _validate_id(self, id, list_ids):
-        ''' 验证指定的ID是否在给定的列表中 '''
+        """ 验证指定的ID是否在给定的列表中 """
         if not re.match(r"\d+$", id):
             print("输入的ID不是一个数字")
             return False
@@ -387,7 +391,7 @@ class Generator(object):
         return True
 
     def _set_report_info(self, product):
-        ''' 写入部分信息到指定行 '''
+        """ 写入部分信息到指定行 """
         self._ws.cell('G{}'.format(self.index)).value = product['internal_name']
         self._ws.cell('H{}'.format(self.index)).value = product['viscosity_limit']
         self._ws.cell('I{}'.format(self.index)).value = product['product_date']
@@ -416,7 +420,10 @@ class Generator(object):
             engine.Quit()
 
     def get_today_report_dir_path(self):
-        '''自动创建并返回当日报告文件夹路径'''
+        """
+        自动创建并返回当日报告文件夹路径
+        :return:
+        """
         today_dir_name = datetime.strftime(datetime.now(), '%Y-%m-%d')
         today_path = os.path.join(module_path(), 'reports/%s' % today_dir_name)
         if not os.path.exists(today_path):
@@ -424,7 +431,7 @@ class Generator(object):
         return today_path
 
     def onlyone_filename(self, path, filename, ext):
-        '''检查并生成唯一的文件名'''
+        """ 检查并生成唯一的文件名 """
         filepath = '%s/%s.%s' % (path, filename, ext)
         if os.path.exists(filepath):
             filename = '%s(1)' % filename
@@ -447,7 +454,7 @@ class Generator(object):
                 return item
 
     def get_template(self, name):
-        ''' 获取模板文件路径 '''
+        """ 获取模板文件路径 """
         return os.path.join(self.app_path, "templates/%s.docx" % name)
 
 

@@ -86,11 +86,11 @@ class Fixer(object):
             self.set_range_value(ws_to, 1, start, data)
 
     def set_range_value(self, ws, leftCol, topRow, data):
-        '''
+        """
         Insert a 2d array starting at given location.
         i.e. [['a','b','c'],['a','b','c'],['a','b','c']]
         Works out the size needed for itself
-        '''
+        """
         bottomRow = topRow + len(data) - 1
         rightCol = leftCol + len(data[0]) - 1
         ws.Range(ws.Cells(topRow, leftCol),
@@ -171,10 +171,10 @@ class Fixer(object):
             cell.Value = "{}级".format(guang)
 
     def save(self, filename=None):
-        '''
+        """
         if filename is None, save the openning file
         else save as another file used the given name
-        '''
+        """
         if filename:
             self.wb.SaveAs(filename)
         else:

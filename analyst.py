@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Created on 2016年6月15日
 
 @author: Wan
-'''
+"""
 import os
 import re
 from datetime import datetime
@@ -12,7 +12,7 @@ from openpyxl import load_workbook
 
 
 class FormulaAnalyst(object):
-    ''' 分析一个excel文件，获取产品配方信息'''
+    """ 分析一个excel文件，获取产品配方信息"""
 
     def __init__(self, filename):
         self.filename = filename
@@ -20,9 +20,9 @@ class FormulaAnalyst(object):
         self.ws_count = len(self.wb.worksheets)
 
     def get_formulas(self):
-        ''' return all formulas in self.filename
+        """ return all formulas in self.filename
         formula is dict(name<str>, version<str>, info<str>, date<datetime>,
-        materials<list>, jialiao_yaoqiu<list>)'''
+        materials<list>, jialiao_yaoqiu<list>)"""
         formulas = []
         formula = self.match_filemame()
         materials = self.get_mixing_materials()
@@ -37,7 +37,7 @@ class FormulaAnalyst(object):
         return formulas
 
     def match_filemame(self):
-        ''' return dict(name, date, info, version) '''
+        """ return dict(name, date, info, version) """
         filename = self.filename.replace("（", "(").replace("）", ")")
         pattern = re.compile(r'''^(?P<date>\d{4}-\d{1,2}-\d{1,2})?
                                   (?P<name>.+)
@@ -58,7 +58,7 @@ class FormulaAnalyst(object):
                     info='')
 
     def get_product_name_in_sheet(self):
-        ''' return a [(product_name, sheet_name)] list '''
+        """ return a [(product_name, sheet_name)] list """
         products = []
         sheets = self.wb.get_sheet_names()
         for sheet in sheets:
@@ -74,7 +74,7 @@ class FormulaAnalyst(object):
         return products
 
     def get_mixing_materials(self, start=8):
-        ''' return a list[(name, amount, location)] '''
+        """ return a list[(name, amount, location)] """
         materials = list()
         try:
             ws = self.wb.get_sheet_by_name('配料单')
@@ -89,7 +89,7 @@ class FormulaAnalyst(object):
         return materials
 
     def get_jiaoliao_info(self, sheet):
-        ''' return a dict(materials<list>, yaoqiu<list>) '''
+        """ return a dict(materials<list>, yaoqiu<list>) """
         info = dict(materials=[], yaoqiu=[])
         ws = self.wb.get_sheet_by_name(sheet)
         title = ws.cell("A2").value
@@ -97,12 +97,12 @@ class FormulaAnalyst(object):
             return info
 
         row = 13
-        while ws.cell(row=row, column=1).value != "物料名称":   # 获取加料信息起始行
+        while ws.cell(row=row, column=1).value != "物料名称":  # 获取加料信息起始行
             row += 1
             if row > ws.max_row:  # 防止死循环
                 break
 
-        while True:   # 获取加料信息结束行
+        while True:  # 获取加料信息结束行
             row += 1
             name = ws.cell(row=row, column=1).value
             amount = ws.cell(row=row, column=3).value

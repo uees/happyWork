@@ -51,6 +51,12 @@ CONF = [
         'alias': ['H-8100'],
     },
     {
+        'slug': 'h9100d',
+        'name': '感光阻焊油墨',
+        'template': 'H-9100D',
+        'alias': ['H-9100D'],
+    },
+    {
         'slug': 'h9100_jx',
         'name': '感光阻焊油墨',
         'template': 'H-9100_金像',

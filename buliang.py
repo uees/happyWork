@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -- coding: utf-8 -*-
-'''
+"""
 Created on 2016年7月4日
 
 @author: Wan
-'''
+"""
 import os
 import re
 from datetime import datetime

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -- coding: utf-8 -*-
-'''
+"""
 Created on 2016年6月4日
 
 @author: Wan
-'''
+"""
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Float, Integer, String, create_engine
@@ -29,7 +29,7 @@ class IQCMaterial(Base):
 
 
 class Product(Base):
-    '''产品信息'''
+    """ 产品信息"""
     __tablename__ = 'products'
     id = Column(Integer, primary_key=True)
     internal_name = Column(String(64), default='', index=True)  # 内部品名（生产单品名）
@@ -45,7 +45,7 @@ class Product(Base):
 
 
 class BuliangFangan(Base):
-    '''不良品处理方案'''
+    """ 不良品处理方案"""
     __tablename__ = 'buliang_fangan'
     id = Column(Integer, primary_key=True)
     product_name = Column(String(64), default='')
@@ -54,9 +54,9 @@ class BuliangFangan(Base):
 
 
 class CangkuLiushui(Base):
-    '''仓库流水表
+    """ 仓库流水表
     ALTER TABLE liushui RENAME TO product_liushui
-    '''
+    """
     __tablename__ = 'cangku_liushui'
     id = Column(Integer, primary_key=True)
     yewu_type = Column(String(64), default='')
@@ -74,8 +74,7 @@ class CangkuLiushui(Base):
 
 
 class ProductLiushui(Base):
-    '''生产流水表
-    '''
+    """ 生产流水表 """
     __tablename__ = 'product_liushui'
     id = Column(Integer, primary_key=True)
     kind = Column(String(64), default='')  # 类别
@@ -104,7 +103,7 @@ class ProductLiushui(Base):
 
 
 class BuliangKuchun(Base):
-    '''不良库存量'''
+    """ 不良库存量"""
     __tablename__ = 'buliang_kuchun'
     id = Column(Integer, primary_key=True)
     product_name = Column(String(64), default='')
@@ -112,7 +111,7 @@ class BuliangKuchun(Base):
 
 
 class ProductClassification(Base):
-    """ 财务对账使用的产品分类表 """
+    """ 财务对账使用的产品分类表"""
     __tablename__ = 'product_classification'
     id = Column(Integer, primary_key=True)
     part_id = Column(Integer, default=0)

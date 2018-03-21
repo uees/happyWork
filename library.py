@@ -1,9 +1,9 @@
 # -- coding: utf-8 -*-
-'''
+"""
 Created on 2015年7月10日
 
 @author: Wan
-'''
+"""
 from docx import Document
 from openpyxl import Workbook, load_workbook
 
@@ -55,7 +55,7 @@ class WTemplate(object):
                             run.add_text(replaced)
 
     def replace(self, filter_format):
-        ''' code is very rubbish, but it Cross-platform '''
+        """ code is very rubbish, but it Cross-platform """
         for paragraph in self.document.paragraphs:
             self.change_paragraph(paragraph, filter_format)
 
@@ -67,10 +67,10 @@ class WTemplate(object):
 
 
 class XlsOperator(object):
-    '''
+    """
     Some convenience methods for Excel documents accessed
     through OpenPyXl.
-    '''
+    """
 
     def __init__(self, filename=None):
         '''
@@ -85,17 +85,17 @@ class XlsOperator(object):
             self.wb = Workbook()
 
     def save(self, filename=None):
-        '''
+        """
         if filename is None, save the openning file
         else save as another file used the given name.
         This operation will overwrite existing files without warning.
-        '''
+        """
         if filename:
             self.filename = filename
         self.wb.save(filename=self.filename)
 
     def select(self, sheet=None):
-        ''' select and return a sheet '''
+        """ select and return a sheet """
         if sheet:
             self.ws = self.wb.get_sheet_by_name(sheet)
         else:
@@ -103,32 +103,32 @@ class XlsOperator(object):
         return self.ws
 
     def create_sheet(self, name=None):
-        ''' create and return a new sheet '''
+        """ create and return a new sheet """
         ws = self.wb.create_sheet(title=name)
         return ws
 
     def get_cell(self, point):
-        '''
+        """
         Get value of one cell
         @point: string cell's coordinate. egg, "A4"
-        '''
+        """
         return self.ws.cell(point).value
 
     def set_cell(self, point, value):
-        '''
+        """
         Set value of one cell
-        '''
+        """
         self.ws.cell(point).value = value
 
     def get_range(self, point1, point2):
-        '''
+        """
         ws.iter_rows('A1:C2')
-        '''
+        """
         return self.ws.iter_rows('%s:%s' % (point1, point2))
 
     def count_rows(self, sheet):
-        '''
+        """
         return the number of the sheet rows.
-        '''
+        """
         ws = self.wb.get_sheet_by_name(sheet)
         return ws.max_row  # len(ws.rows)
