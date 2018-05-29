@@ -198,55 +198,55 @@ if __name__ == "__main__":
     config = {
         'FQC阻焊表格': [
             {
-                'col': 7,   # 颜色
+                'col': 8,   # 颜色
                 'func': 'fix',
                 'args': ['PASS']
             },
             {
-                'col': 8,   # 细度
+                'col': 9,   # 细度
                 'func': 'fix_xidu',
                 'args': [[15, 17.5, 20]]
             },
             {
-                'col': 11,   # 红外
+                'col': 12,   # 红外
                 'func': 'fix_hongwai',
                 'args': []
             },
             {
-                'col': 12,   # 板面效果
+                'col': 13,   # 板面效果
                 'func': 'fix',
                 'args': ['PASS']
             },
             {
-                'col': 13,   # 固化性
+                'col': 14,   # 固化性
                 'func': 'fix',
                 'args': ['PASS']
             },
             {
-                'col': 14,    # 感光性
+                'col': 15,    # 感光性
                 'func': 'fix_ganguang',
                 'args': [range(9, 13)]
             },
             {
-                'col': 24,  # 硬度
+                'col': 23,  # 硬度
                 'done_col': 18,   # 80 min 显影标志着做完
                 'func': 'stuff',
                 'args': ['6H']
             },
             {
-                'col': 25,  # 附着力
+                'col': 24,  # 附着力
                 'done_col': 18,
                 'func': 'stuff',
                 'args': ['100%']
             },
             {
-                'col': 26,   # 耐焊性
+                'col': 25,   # 耐焊性
                 'done_col': 18,
                 'func': 'stuff',
                 'args': ['PASS']
             },
             {
-                'col': 27,   # 耐化性
+                'col': 26,   # 耐化性
                 'done_col': 18,
                 'func': 'stuff',
                 'args': ['PASS']

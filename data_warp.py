@@ -36,12 +36,12 @@ def insert_product_to_xlsx(product, filename, sheet):
     wb = load_workbook(filename)
     ws = wb.get_sheet_by_name(sheet)
     index = len(ws.rows) + 1
-    ws.cell("A{}".format(index), value=product.internal_name)
-    ws.cell("B{}".format(index), value=product.template)
-    ws.cell("C{}".format(index), value=product.viscosity)
-    ws.cell("D{}".format(index), value=product.viscosity_width)
-    ws.cell("E{}".format(index), value=product.market_name)
-    ws.cell("J{}".format(index), value=product.color)
+    ws["A{}".format(index)] = product.internal_name
+    ws["B{}".format(index)] = product.template
+    ws["C{}".format(index)] = product.viscosity
+    ws["D{}".format(index)] = product.viscosity_width
+    ws["E{}".format(index)] = product.market_name
+    ws["J{}".format(index)] = product.color
     wb.save(filename)
 
 

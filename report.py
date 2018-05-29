@@ -72,6 +72,7 @@ class Generator(object):
             self.generate_达进(product)
             self.generate_景旺(product)
             self.generate_健鼎(product)
+            self.generate_南通深南(product)
 
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
@@ -87,8 +88,10 @@ class Generator(object):
                 self.generate_report(new_product)
 
     def generate_达进(self, product):
-        if product['market_name'] == '8BL2' or product['market_name'] == '8WL5 01' or\
-                product['market_name'] == '44G' or product['market_name'] == '6GHB HF':
+        if product['market_name'] == '8BL2' or \
+                product['market_name'] == '8WL5 01' or \
+                product['market_name'] == '44G' or \
+                product['market_name'] == '6GHB HF':
 
             if not product['kind'].endswith('_dj'):
                 new_product = product.copy()
@@ -97,7 +100,7 @@ class Generator(object):
                 self.generate_report(new_product)
 
     def generate_景旺(self, product):
-        if product['market_name'] == '6GHB HF' or product['market_name'] == 'MG55' or\
+        if product['market_name'] == '6GHB HF' or product['market_name'] == 'MG55' or \
                 product['internal_name'].find('A-9060C01') >= 0:
             if not product['kind'].endswith('_jw'):
                 new_product = product.copy()
@@ -112,6 +115,18 @@ class Generator(object):
             if not product['kind'].endswith('_jd'):  # 这时没有标注的才创建, 标注过的已经创建了
                 new_product = product.copy()
                 new_product["kind"] = '%s_jd' % product['kind']
+                new_product['template'] = self.get_template_by_slug(new_product["kind"])
+                self.generate_report(new_product)
+
+    def generate_南通深南(self, product):
+        if product.get('market_name').find('SP8') == 0 or \
+                product.get('market_name').find('SP50') == 0 or \
+                product.get('market_name').find('SPM') == 0 or \
+                product.get('market_name') == '60G':
+
+            if not product['kind'].endswith('_ntsn'):  # 这时没有标注的才创建, 标注过的已经创建了
+                new_product = product.copy()
+                new_product["kind"] = '%s_ntsn' % product['kind']
                 new_product['template'] = self.get_template_by_slug(new_product["kind"])
                 self.generate_report(new_product)
 
@@ -314,6 +329,8 @@ class Generator(object):
     def given_修饰(self, given, product_obj):
         """ 征对性修饰 """
         if product_obj.market_name.find('SP8') == 0 or \
+                product_obj.market_name.find('SP50') == 0 or \
+                product_obj.market_name.find('SPM') == 0 or \
                 product_obj.market_name == 'A-9060A 01' or \
                 product_obj.market_name == '60G':
             given['ext_info'] += '(深南电路要求打发货数量)'
@@ -352,7 +369,7 @@ class Generator(object):
         value = rlinput(msg)
 
         if not is_number_like(value):
-            value = self._input_number()
+            value = self._input_number(None)
 
         return value
 
@@ -392,11 +409,11 @@ class Generator(object):
 
     def _set_report_info(self, product):
         """ 写入部分信息到指定行 """
-        self._ws.cell('G{}'.format(self.index)).value = product['internal_name']
-        self._ws.cell('H{}'.format(self.index)).value = product['viscosity_limit']
-        self._ws.cell('I{}'.format(self.index)).value = product['product_date']
-        self._ws.cell('J{}'.format(self.index)).value = product['validity_date']
-        self._ws.cell('K{}'.format(self.index)).value = product['qc_date']
+        self._ws['G{}'.format(self.index)] = product['internal_name']
+        self._ws['H{}'.format(self.index)] = product['viscosity_limit']
+        self._ws['I{}'.format(self.index)] = product['product_date']
+        self._ws['J{}'.format(self.index)] = product['validity_date']
+        self._ws['K{}'.format(self.index)] = product['qc_date']
 
     def exit(self):
         self.save()

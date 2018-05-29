@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-'''
-Created on 2015年7月10日
-
-@author: Wan
-'''
 
 APP_NAME = "QcReport"
 
@@ -121,6 +116,18 @@ CONF = [
         'template': 'H-9100_景旺',
         'name': '感光阻焊油墨',
         'customer': '景旺',
+    },
+    {
+        'slug': 'h9100_ntsn',
+        'template': 'H-9100_南通深南',
+        'name': '感光阻焊油墨',
+        'customer': '南通深南',
+    },
+    {
+        'slug': 'h8100_ntsn',
+        'template': 'H-8100_南通深南',
+        'name': '感光阻焊油墨',
+        'customer': '南通深南',
     },
     {
         'slug': 'a9060a',
@@ -242,6 +249,10 @@ CONF = [
     {
         'slug': 'rdi6000',
         'template': 'RDI-6000',
+    },
+    {
+        'slug': 'rdi600003',
+        'template': 'RDI-600003',
     },
     {
         'slug': 'other',
