@@ -35,7 +35,7 @@ def insert_product(product):
 def insert_product_to_xlsx(product, filename, sheet):
     wb = load_workbook(filename)
     ws = wb.get_sheet_by_name(sheet)
-    index = len(ws.rows) + 1
+    index = ws.max_row + 1
     ws["A{}".format(index)] = product.internal_name
     ws["B{}".format(index)] = product.template
     ws["C{}".format(index)] = product.viscosity

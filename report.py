@@ -391,7 +391,7 @@ class Generator(object):
 
     def _cmd_edit(self, given):
         given['internal_name'] = rlinput("品名:", given['internal_name'])
-        self._ws.cell('B{}'.format(self.index)).value = given['internal_name']
+        self._ws['B{}'.format(self.index)] = given['internal_name']
         try:
             self._wb.save(self._product_wb_file)
         except PermissionError:
