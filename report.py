@@ -46,7 +46,7 @@ class Generator(object):
 
     def generate_reports(self, sheet="Sheet1"):
         """ 批量生成检验报告 """
-        self._ws = self._wb.get_sheet_by_name(sheet)
+        self._ws = self._wb[sheet]
 
         if not self.start_index:
             self.start_index = self.get_start_row()

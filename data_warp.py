@@ -34,7 +34,7 @@ def insert_product(product):
 
 def insert_product_to_xlsx(product, filename, sheet):
     wb = load_workbook(filename)
-    ws = wb.get_sheet_by_name(sheet)
+    ws = wb[sheet]
     index = ws.max_row + 1
     ws["A{}".format(index)] = product.internal_name
     ws["B{}".format(index)] = product.template
@@ -48,7 +48,7 @@ def insert_product_to_xlsx(product, filename, sheet):
 def init_product_data(file, sheet):
     """ 从 database.xlsx 读取数据 """
     wb = load_workbook(filename=file)
-    ws = wb.get_sheet_by_name(sheet)
+    ws = wb[sheet]
     for row in ws.iter_rows('A2:J{}'.format(ws.max_row)):
         (internal_name, template, viscosity, viscosity_width, market_name, category,
          part_a, part_b, ratio, color) = [cell.value for cell in row]
@@ -70,7 +70,7 @@ def init_product_data(file, sheet):
 
 def init_materials(filename, sheet):
     wb = load_workbook(filename)
-    ws = wb.get_sheet_by_name(sheet)
+    ws = wb[sheet]
     for row in ws.iter_rows('A2:D{}'.format(ws.max_row)):
         material_name, qc_items, spec, qc_method = [cell.value for cell in row]
         if not material_name:
