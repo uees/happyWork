@@ -73,6 +73,7 @@ class Generator(object):
             self.generate_景旺(product)
             self.generate_健鼎(product)
             self.generate_南通深南(product)
+            self.generate_崇达(product)
 
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
