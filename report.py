@@ -130,6 +130,22 @@ class Generator(object):
                 new_product['template'] = self.get_template_by_slug(new_product["kind"])
                 self.generate_report(new_product)
 
+    def generate_崇达(self, product):
+        if product.get('market_name') == '8BL' or \
+                product.get('market_name') == 'GH3' or \
+                product.get('market_name').find('G6') == 0 or \
+                product.get('market_name').find('SP02') == 0 or \
+                product.get('market_name').find('GH40') == 0 or \
+                product.get('market_name').find('MG31') == 0 or \
+                product.get('market_name').find('23GHB') == 0 or \
+                product.get('internal_name').find('崇达') >= 0:
+
+            if not product['kind'].endswith('_cd'):  # 这时没有标注的才创建, 标注过的已经创建了
+                new_product = product.copy()
+                new_product["kind"] = '%s_cd' % product['kind']
+                new_product['template'] = self.get_template_by_slug(new_product["kind"])
+                self.generate_report(new_product)
+
     def generate_normal(self, product):
         if product['kind'].endswith('_jx'):  # 金像是设置的主剂粘度, 只此一家用, 暂时不生成 normal
             return
@@ -339,16 +355,6 @@ class Generator(object):
                 product_obj.market_name.find('30GHB') >= 0 or \
                 product_obj.market_name.find('SP20HF') >= 0:
             given['ext_info'] += '(宏华胜要求打发货数量)'
-
-        if product_obj.market_name == '8BL' or \
-                product_obj.market_name == 'GH3' or \
-                product_obj.market_name.find('G6') == 0 or \
-                product_obj.market_name.find('SP02') == 0 or \
-                product_obj.market_name.find('GH40') == 0 or \
-                product_obj.market_name.find('MG31') == 0 or \
-                product_obj.market_name.find('23GHB') == 0 or \
-                product_obj.internal_name.find('崇达') >= 0:
-            given['ext_info'] += '(崇达要求打发货数量)'
 
         return given
 
