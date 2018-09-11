@@ -72,6 +72,7 @@ class Generator(object):
             self.generate_达进(product)
             self.generate_景旺(product)
             self.generate_健鼎(product)
+            self.generate_深南(product)
             self.generate_南通深南(product)
             self.generate_崇达(product)
 
@@ -119,17 +120,32 @@ class Generator(object):
                 new_product['template'] = self.get_template_by_slug(new_product["kind"])
                 self.generate_report(new_product)
 
+    def generate_深南(self, product):
+        if product.get('market_name').find('SP8') == 0 or \
+                product.get('market_name').find('SP50') == 0 or \
+                product.get('market_name').find('SPM') == 0 or \
+                product.get('market_name') == 'A-9060A 01' or \
+                product.get('market_name') == '60G' or \
+                product.get('market_name') == 'SK29':
+
+            if not product['kind'].endswith('_ntsn'):
+                new_product = product.copy()
+                new_product['ext_info'] += '(深南要打发货数量、要发邮件到ntiqc@scc.com.cn)'
+                self.generate_report(new_product, '深南')
+
     def generate_南通深南(self, product):
         if product.get('market_name').find('SP8') == 0 or \
                 product.get('market_name').find('SP50') == 0 or \
                 product.get('market_name').find('SPM') == 0 or \
-                product.get('market_name') == '60G':
+                product.get('market_name') == '60G' or \
+                product.get('market_name') == 'SK29':
 
             if not product['kind'].endswith('_ntsn'):  # 这时没有标注的才创建, 标注过的已经创建了
                 new_product = product.copy()
                 new_product["kind"] = '%s_ntsn' % product['kind']
                 new_product['template'] = self.get_template_by_slug(new_product["kind"])
-                self.generate_report(new_product)
+                new_product['ext_info'] += '(深南要打发货数量、要发邮件到ntiqc@scc.com.cn)'
+                self.generate_report(new_product, '深南')
 
     def generate_崇达(self, product):
         if product.get('market_name') == '8BL' or \
@@ -157,7 +173,23 @@ class Generator(object):
             new_product['ext_info'] = ''
             self.generate_report(new_product)
 
-    def generate_report(self, product):
+    def format_filename(self, customer, product):
+        if customer == "深南":
+            qc_date = datetime.strftime(datetime.now(), '%Y%m%d')
+            filename = '{}_{}_{}容大{}COC.docx'.format(product["batch"],
+                                                     product["ext_info"],
+                                                     qc_date,
+                                                     product["market_name"])
+
+        else:
+            filename = '{}_{}_{}{}.docx'.format(product["batch"],
+                                                product["internal_name"],
+                                                product["spec"],
+                                                product["ext_info"])
+
+        return filename
+
+    def generate_report(self, product, customer=None):
         """ 生成检验报告 """
         conf = self.get_conf(product["kind"])
         if not conf:
@@ -177,10 +209,9 @@ class Generator(object):
         tp.replace(product)
 
         today_report_dir = self.get_today_report_dir_path()
-        filename = '{}_{}_{}{}.docx'.format(product["batch"],
-                                            product["internal_name"],
-                                            product["spec"],
-                                            product["ext_info"])
+
+        filename = self.format_filename(customer, product)
+
         filepath = '{}/{}'.format(today_report_dir, filename)
 
         if os.path.exists(filepath):
@@ -345,13 +376,6 @@ class Generator(object):
 
     def given_修饰(self, given, product_obj):
         """ 征对性修饰 """
-        if product_obj.market_name.find('SP8') == 0 or \
-                product_obj.market_name.find('SP50') == 0 or \
-                product_obj.market_name.find('SPM') == 0 or \
-                product_obj.market_name == 'A-9060A 01' or \
-                product_obj.market_name == '60G':
-            given['ext_info'] += '(深南电路要求打发货数量)'
-
         if product_obj.market_name.find('28GHB') >= 0 or \
                 product_obj.market_name.find('30GHB') >= 0 or \
                 product_obj.market_name.find('SP20HF') >= 0:
