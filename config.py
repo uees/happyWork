@@ -140,8 +140,6 @@ CONF = [
         'slug': 'a9060a_sn',
         'template': 'A-9060A_内层湿膜_深南',
         'name': '感光线路油墨内层',
-        'customer': '深南',
-        'ext_info': '(深南要打发货数量)'
     },
     {
         'slug': 'a9060a_jd',

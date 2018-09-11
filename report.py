@@ -191,6 +191,10 @@ class Generator(object):
 
     def generate_report(self, product, customer=None):
         """ 生成检验报告 """
+        if product['kind'].endswith('_sn'):
+            if product['ext_info'] == '':
+                return  # fix bug
+
         conf = self.get_conf(product["kind"])
         if not conf:
             return print('无效的产品类别')
