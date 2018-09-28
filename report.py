@@ -75,11 +75,28 @@ class Generator(object):
             self.generate_深南(product)
             self.generate_南通深南(product)
             self.generate_崇达(product)
+            self.generate_木林森字符油(product)
 
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
 
         self.save()
+
+    def generate_木林森字符油(self, product):
+        """ 木林森对字符油粘度范围有特殊要求 """
+        product = product.copy()
+        product['ext_info'] += '【木林森专用】'
+        matched = False
+
+        if product['market_name'] == "TM-3100 BK":
+            matched = True
+            product["viscosity_limit"] = "300~700"
+        elif product['market_name'] == "TM-3100 W":
+            matched = True
+            product["viscosity_limit"] = "200~600"
+
+        if matched:
+            self.generate_report(product)
 
     def generate_明阳(self, product):
         if product['internal_name'].find('A-9060C01') >= 0:
