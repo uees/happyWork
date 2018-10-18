@@ -75,14 +75,14 @@ class Generator(object):
             self.generate_深南(product)
             self.generate_南通深南(product)
             self.generate_崇达(product)
-            self.generate_木林森字符油(product)
+            self.generate_木林森(product)
 
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
 
         self.save()
 
-    def generate_木林森字符油(self, product):
+    def generate_木林森(self, product):
         """ 木林森对字符油粘度范围有特殊要求 """
         product = product.copy()
         product['ext_info'] += '【木林森专用】'
@@ -94,6 +94,14 @@ class Generator(object):
         elif product['market_name'] == "TM-3100 W":
             matched = True
             product["viscosity_limit"] = "200~600"
+        elif product["market_name"].startswith('A-2100'):
+            matched = True
+            product["viscosity_limit"] = "200±100"
+        elif product["market_name"] == "W16":  # 热固阻焊油 200±50
+            matched = True
+            product["viscosity_limit"] = "200±50"
+
+        # todo 面油 180±50，塞孔油 300±100
 
         if matched:
             self.generate_report(product)
@@ -252,7 +260,7 @@ class Generator(object):
         customer, internal_name, spec, batch, amount, product_date = map(
             null2str, [customer, internal_name, spec, batch, amount, product_date])
 
-        internal_name = re.sub(r'[\(\)（）]|20kg|20KG|5kg|5KG|1kg|1KG', ' ', internal_name)  # 去除不良字符
+        internal_name = re.sub(r'[\(\)（）]|20kg|20KG|5kg|5KG|1kg|1KG|内袋|外贸', ' ', internal_name)  # 去除不良字符
         internal_name = internal_name.strip()
 
         if is_number(batch):
