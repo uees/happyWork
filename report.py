@@ -19,6 +19,7 @@ from common import is_number, is_number_like, module_path, null2str, rlinput
 from config import CONF
 from database import Product, init_database, reset_table
 from library import WTemplate
+from pdf import add_watermark, create_watermark
 
 
 class Generator(object):
@@ -152,6 +153,13 @@ class Generator(object):
                 product.get('market_name') == 'A-9060A 01' or \
                 product.get('market_name') == '60G' or \
                 product.get('market_name') == 'SK29':
+
+            if product.get('market_name') == "SP8T3":
+                f_name = 'SP8T3-%s.pdf' % random.randint(1, 30)
+                f_path = os.path.join(self.app_path, 'spa/sp8t3/%s' % f_name)
+                out_f_name = 'SP8T3-%s.pdf' % product.get('batch')
+                watermark = create_watermark(out_f_name, os.path.join(self.app_path, 'spa/sp8t3'))
+                add_watermark(watermark, f_path, os.path.join(self.get_today_report_dir_path(), out_f_name))
 
             if not product['kind'].endswith('_ntsn'):
                 new_product = product.copy()
