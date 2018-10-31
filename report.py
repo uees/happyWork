@@ -152,14 +152,16 @@ class Generator(object):
                 product.get('market_name').find('SPM') == 0 or \
                 product.get('market_name') == 'A-9060A 01' or \
                 product.get('market_name') == '60G' or \
-                product.get('market_name') == 'SK29':
+                product.get('market_name').find('SK29') >= 0:
 
-            if product.get('market_name') == "SP8T3":
-                f_name = 'SP8T3-%s.pdf' % random.randint(1, 30)
-                f_path = os.path.join(self.app_path, 'spa/sp8t3/%s' % f_name)
-                out_f_name = 'SP8T3-%s.pdf' % product.get('batch')
-                watermark = create_watermark(out_f_name, os.path.join(self.app_path, 'spa/sp8t3'))
-                add_watermark(watermark, f_path, os.path.join(self.get_today_report_dir_path(), out_f_name))
+            # SP8T3 and SP8T308 红外PDF
+            if product.get('market_name') == "SP8T3" or \
+                    product.get('market_name').replace(' ', '') == "SP8T308":
+                self.generatePDF(product)
+
+            # T-SK2902 红外PDF
+            if product.get('market_name').find('T-SK29') >= 0:
+                self.generatePDF(product, dir='T-SK2902', max=17)
 
             if not product['kind'].endswith('_ntsn'):
                 new_product = product.copy()
@@ -171,7 +173,7 @@ class Generator(object):
                 product.get('market_name').find('SP50') == 0 or \
                 product.get('market_name').find('SPM') == 0 or \
                 product.get('market_name') == '60G' or \
-                product.get('market_name') == 'SK29':
+                product.get('market_name').find('SK29') >= 0:
 
             if not product['kind'].endswith('_ntsn'):  # 这时没有标注的才创建, 标注过的已经创建了
                 new_product = product.copy()
@@ -205,6 +207,22 @@ class Generator(object):
             new_product["kind"] = product["kind"][:f]
             new_product['ext_info'] = ''
             self.generate_report(new_product)
+
+    def generatePDF(self, product, dir=None, max=30):
+        spa_path = os.path.join(self.app_path, 'spa')
+        basename = product.get('market_name').replace(' ', '')
+
+        if not dir:
+            dir = basename
+
+        f_name = '%s.pdf' % random.randint(1, max)
+        f_path = os.path.join(spa_path, '%s/%s' % (dir, f_name))
+
+        out_f_name = '%s-%s.pdf' % (basename, product.get('batch'))
+        out_f_path = os.path.join(self.get_today_report_dir_path(), out_f_name)
+
+        watermark = create_watermark(out_f_name, spa_path)
+        add_watermark(watermark, f_path, out_f_path)
 
     def format_filename(self, customer, product):
         if customer == "深南":
