@@ -65,8 +65,13 @@ class Generator(object):
             if not product:
                 continue
 
+            # fix模式: 修改了 product
+            self.fix_宏华胜(product)
+
             self.generate_report(product)
-            self.generate_normal(product)
+
+            if product['wants_normal']:
+                self.generate_normal(product)
 
             # 专用报告
             self.generate_明阳(product)
@@ -77,11 +82,33 @@ class Generator(object):
             self.generate_南通深南(product)
             self.generate_崇达(product)
             self.generate_木林森(product)
+            self.generate_华新(product)
 
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
 
         self.save()
+
+    def fix_宏华胜(self, product):
+        # product 数组引用传值，内部修改影响外面
+        if product['market_name'].find('28GHB') >= 0 or \
+                product['market_name'].find('30GHB') >= 0:
+            product['ext_info'] += '(宏华胜要求打发货数量)'
+            product['kind'] = 'h9100_fsk'
+        elif product['market_name'].find('SP20HF') >= 0:
+            product['ext_info'] += '(宏华胜要求打发货数量)'
+
+        product['wants_normal'] = False
+
+    def generate_华新(self, product):
+        """ SK45 GH6 8G 塞孔 要求打 H-8100 """
+        if product['market_name'] == "8G 塞孔" or \
+                product['market_name'] == "GH6" or \
+                product['market_name'] == "SK45":
+            new_product = product.copy()
+            new_product["kind"] = 'h8100'
+            new_product['ext_info'] += '【华新专用报告】'
+            self.generate_report(new_product)
 
     def generate_木林森(self, product):
         """ 木林森对字符油粘度范围有特殊要求 """
@@ -112,7 +139,6 @@ class Generator(object):
             if not product['kind'].endswith('_my'):
                 new_product = product.copy()
                 new_product["kind"] = '%s_my' % product['kind']
-                new_product['template'] = self.get_template_by_slug(new_product["kind"])
                 self.generate_report(new_product)
 
     def generate_达进(self, product):
@@ -124,7 +150,6 @@ class Generator(object):
             if not product['kind'].endswith('_dj'):
                 new_product = product.copy()
                 new_product["kind"] = '%s_dj' % product['kind']
-                new_product['template'] = self.get_template_by_slug(new_product["kind"])
                 self.generate_report(new_product)
 
     def generate_景旺(self, product):
@@ -133,7 +158,6 @@ class Generator(object):
             if not product['kind'].endswith('_jw'):
                 new_product = product.copy()
                 new_product["kind"] = '%s_jw' % product['kind']
-                new_product['template'] = self.get_template_by_slug(new_product["kind"])
                 self.generate_report(new_product)
 
     def generate_健鼎(self, product):
@@ -143,7 +167,6 @@ class Generator(object):
             if not product['kind'].endswith('_jd'):  # 这时没有标注的才创建, 标注过的已经创建了
                 new_product = product.copy()
                 new_product["kind"] = '%s_jd' % product['kind']
-                new_product['template'] = self.get_template_by_slug(new_product["kind"])
                 self.generate_report(new_product)
 
     def generate_深南(self, product):
@@ -178,7 +201,6 @@ class Generator(object):
             if not product['kind'].endswith('_ntsn'):  # 这时没有标注的才创建, 标注过的已经创建了
                 new_product = product.copy()
                 new_product["kind"] = '%s_ntsn' % product['kind']
-                new_product['template'] = self.get_template_by_slug(new_product["kind"])
                 new_product['ext_info'] += '(深南要打发货数量、要发邮件到ntiqc@scc.com.cn)'
                 self.generate_report(new_product, '深南')
 
@@ -195,7 +217,6 @@ class Generator(object):
             if not product['kind'].endswith('_cd'):  # 这时没有标注的才创建, 标注过的已经创建了
                 new_product = product.copy()
                 new_product["kind"] = '%s_cd' % product['kind']
-                new_product['template'] = self.get_template_by_slug(new_product["kind"])
                 self.generate_report(new_product)
 
     def generate_normal(self, product):
@@ -417,24 +438,12 @@ class Generator(object):
 
         given['market_name'] = product_obj.market_name
         given['kind'] = product_obj.template
-        given['template'] = self.get_template_by_slug(given["kind"])
         given['viscosity'] = product_obj.viscosity
         given['viscosity_limit'] = "%s±%s" % (product_obj.viscosity, product_obj.viscosity_width)
         given['qc_date'] = datetime.strftime(datetime.now(), '%Y/%m/%d')
         given['ftir'] = '{}%'.format(round(random.uniform(99.3, 100), 2))
         given['color'] = product_obj.color or ''
-
-        if given['kind'].find('_') == -1:
-            given = self.given_修饰(given, product_obj)
-
-        return given
-
-    def given_修饰(self, given, product_obj):
-        """ 征对性修饰 """
-        if product_obj.market_name.find('28GHB') >= 0 or \
-                product_obj.market_name.find('30GHB') >= 0 or \
-                product_obj.market_name.find('SP20HF') >= 0:
-            given['ext_info'] += '(宏华胜要求打发货数量)'
+        given['wants_normal'] = True
 
         return given
 

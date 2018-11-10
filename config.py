@@ -75,6 +75,11 @@ CONF = [
         'customer': '健鼎',
     },
     {
+        'slug': 'h9100_fsk',
+        'template': 'H-9100_烟台富士康',
+        'name': '感光阻焊油墨',
+    },
+    {
         'slug': 'h9100_cd',
         'template': 'H-9100_崇达',
         'name': '感光阻焊油墨',
