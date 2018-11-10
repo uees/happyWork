@@ -31,7 +31,7 @@ class Fixer(object):
 
         self.filefrom = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                      'FQC检测记录表格.xlsx')
-        self.fileto = 'E:\品质部\检测记录.xlsx'
+        self.fileto = 'E:\\品质部\\检测记录.xlsx'
 
         if not os.path.exists(self.fileto):
             shutil.copy(self.filefrom, self.fileto)

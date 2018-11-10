@@ -34,7 +34,7 @@ def add_watermark(pdf_file_mark, pdf_file_in, pdf_file_out):
             # 尝试用空密码解密
             try:
                 pdf_input.decrypt('')
-            except Exception as e:
+            except Exception:
                 print('尝试用空密码解密失败.')
                 return False
             else:
