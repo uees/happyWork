@@ -95,10 +95,10 @@ class Generator(object):
                 product['market_name'].find('30GHB') >= 0:
             product['ext_info'] += '(宏华胜要求打发货数量)'
             product['kind'] = 'h9100_fsk'
+            product['wants_normal'] = False
         elif product['market_name'].find('SP20HF') >= 0:
             product['ext_info'] += '(宏华胜要求打发货数量)'
-
-        product['wants_normal'] = False
+            product['wants_normal'] = False
 
     def generate_华新(self, product):
         """ SK45 GH6 8G 塞孔 要求打 H-8100 """
