@@ -62,7 +62,6 @@ target/
 .settings/
 .project
 .pydevproject
-.idea/
 
 # Windows:
 Thumbs.db
@@ -71,6 +70,7 @@ Desktop.ini
 
 # My configurations:
 .vscode/
+.idea/
 tests/
 tmp/
 reports/
