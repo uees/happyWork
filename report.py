@@ -56,13 +56,18 @@ class Generator(object):
             print("\n------------------------------")
             self.index = index
             _info = self.get_product_info(index)
-            if not _info['internal_name']:
+            if not _info or not _info['internal_name']:
                 continue
 
             print("第 %s行, 品名:%s, 批号:%s" % (index, _info['internal_name'], _info['batch']))
 
             product = self.query_info(_info)
             if not product:
+                continue
+
+            # 可以有效减少背锅概率
+            if len(product['batch']) != 8:
+                print("Line{}:卧槽,批号格式不一般,直接跳过不生成!!@#$@#&%".format(index))
                 continue
 
             # fix模式: 修改了 product
@@ -314,10 +319,8 @@ class Generator(object):
             batch = str(int(batch))
         else:
             print("警告：Line {} 批号可能不是数字.".format(index))
-
-        if len(batch) != 8 and len(batch) != 6:
-            ext_info += "(批号格式可能不正确)"
-            print("Line{}:卧槽,批号格式不一般,小心地雷!!@#$@#&%".format(index))
+            # 批号不是数字的不能生成信息
+            return
 
         if is_number(amount):
             # amount = '发货数量:{}kg'.format(int(amount))
