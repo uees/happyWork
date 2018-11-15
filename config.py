@@ -246,11 +246,6 @@ CONF = [
         'template': 'XD704',
     },
     {
-        'slug': 'rdj',
-        'template': 'COA_RDJ',
-        'alias': ['RDJ'],
-    },
-    {
         'slug': 'rdi6000',
         'template': 'RDI-6000',
     },
