@@ -88,6 +88,7 @@ class Generator(object):
             self.generate_崇达(product)
             self.generate_木林森(product)
             self.generate_华新(product)
+            self.generate_威尔高(product)
 
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
@@ -104,6 +105,25 @@ class Generator(object):
         elif product['market_name'].find('SP20HF') >= 0:
             product['ext_info'] += '(宏华胜要求打发货数量)'
             product['wants_normal'] = False
+
+    def generate_威尔高(self, product):
+        products32 = ['MG605', 'GH6801', 'G603', 'MBK01', '6GHB深色', '8BL2', '8BKH', 'GH15', '9G201', '8R2']
+        products36 = []
+
+        if not product['kind'].endswith('_weg'):
+            if product['internal_name'] in products32:
+                new_product = product.copy()
+                new_product["kind"] = '%s_weg' % product['kind']
+                new_product['dayinReq'] = "≥32达因"
+                new_product['dayinVal'] = "{}达因".format(random.choice([32, 33]))
+                self.generate_report(new_product)
+
+            if product['internal_name'] in products36:
+                new_product = product.copy()
+                new_product["kind"] = '%s_weg' % product['kind']
+                new_product['dayinReq'] = "≥36达因"
+                new_product['dayinVal'] = "{}达因".format(random.choice([36, 37]))
+                self.generate_report(new_product)
 
     def generate_华新(self, product):
         """ SK45 GH6 8G 塞孔 要求打 H-8100 """

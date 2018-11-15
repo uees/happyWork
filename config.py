@@ -118,6 +118,18 @@ CONF = [
         'customer': '达进',
     },
     {
+        'slug': 'h9100_weg',
+        'template': 'H-9100_威尔高',
+        'name': '感光阻焊油墨',
+        'customer': '威尔高',
+    },
+    {
+        'slug': 'h8100_weg',
+        'template': 'H-8100_威尔高',
+        'name': '感光阻焊油墨',
+        'customer': '威尔高',
+    },
+    {
         'slug': 'h9100_jw',
         'template': 'H-9100_景旺',
         'name': '感光阻焊油墨',
