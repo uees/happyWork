@@ -85,6 +85,9 @@ class Fixer(object):
 
             self.set_range_value(ws_to, 1, start, data)
 
+        # 关闭 wb_from，防止意外打开
+        wb_from.Close(-1)
+
     def set_range_value(self, ws, leftCol, topRow, data):
         """
         Insert a 2d array starting at given location.
