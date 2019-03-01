@@ -165,16 +165,15 @@ CONF = [
         'customer': '健鼎',
     },
     {
-        'slug': 'a9060a_my',
-        'template': 'A-9060C01_有色_明阳',
+        'slug': 'a9060c01',
+        'template': 'A-9060C01_有色',
         'name': '感光线路油墨内层',
-        'customer': '明阳',
     },
     {
-        'slug': 'a9060a_jw',
-        'template': 'A-9060C0101_有色_景旺',
+        'slug': 'a9060c0101',
+        'template': 'A-9060C0101_有色',
         'name': '感光线路油墨内层',
-        'customer': '景旺',
+        'customer': '江西景旺',
     },
     {
         'slug': 'a9000',

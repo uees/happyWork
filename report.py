@@ -75,10 +75,10 @@ class Generator(object):
 
             # TODO 秒数的粘度动态
             if product['market_name'] == 'A-9060C 01 01':
-                product['viscosity'] = random.randint(200, 210)
+                product['viscosity'] = "%s" % random.randint(200, 210)
                 product['wants_normal'] = False
             elif product['market_name'] == 'A-9060C 01':
-                product['viscosity'] = random.randint(90, 100)
+                product['viscosity'] = "%s" % random.randint(90, 100)
                 product['wants_normal'] = False
 
             self.generate_report(product)
@@ -87,7 +87,6 @@ class Generator(object):
                 self.generate_normal(product)
 
             # 专用报告
-            self.generate_明阳(product)
             self.generate_达进(product)
             self.generate_景旺(product)
             self.generate_健鼎(product)
@@ -167,14 +166,6 @@ class Generator(object):
         if matched:
             self.generate_report(product)
 
-    def generate_明阳(self, product):
-        # A-9060C01已经默认是秒数了(已经默认_my模板), 这里始终不会运行
-        if product['market_name'] == 'A-9060C 01':
-            if not product['kind'].endswith('_my'):
-                new_product = product.copy()
-                new_product["kind"] = '%s_my' % product['kind']
-                self.generate_report(new_product)
-
     def generate_达进(self, product):
         if product['market_name'] == '8BL2' or \
                 product['market_name'] == '8WL5 01' or \
@@ -187,8 +178,7 @@ class Generator(object):
                 self.generate_report(new_product)
 
     def generate_景旺(self, product):
-        if product['market_name'] == '6GHB HF' or product['market_name'] == 'MG55' or \
-                product['market_name'] == 'A-9060C 01 01':
+        if product['market_name'] == '6GHB HF' or product['market_name'] == 'MG55':
             if not product['kind'].endswith('_jw'):
                 new_product = product.copy()
                 new_product["kind"] = '%s_jw' % product['kind']
