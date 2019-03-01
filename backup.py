@@ -234,7 +234,7 @@ class Manager(object):
         self.backup2file()
         try:
             self.backup2db()
-        except:
+        except Exception:
             import traceback
 
             log.error(traceback.format_exc())

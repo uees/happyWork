@@ -73,6 +73,14 @@ class Generator(object):
             # fix模式: 修改了 product
             self.fix_宏华胜(product)
 
+            # TODO 秒数的粘度动态
+            if product['market_name'] == 'A-9060C 01 01':
+                product['viscosity'] = random.randint(200, 210)
+                product['wants_normal'] = False
+            elif product['market_name'] == 'A-9060C 01':
+                product['viscosity'] = random.randint(90, 100)
+                product['wants_normal'] = False
+
             self.generate_report(product)
 
             if product['wants_normal']:
@@ -160,7 +168,8 @@ class Generator(object):
             self.generate_report(product)
 
     def generate_明阳(self, product):
-        if product['internal_name'].find('A-9060C01') >= 0:
+        # A-9060C01已经默认是秒数了(已经默认_my模板), 这里始终不会运行
+        if product['market_name'] == 'A-9060C 01':
             if not product['kind'].endswith('_my'):
                 new_product = product.copy()
                 new_product["kind"] = '%s_my' % product['kind']
@@ -179,7 +188,7 @@ class Generator(object):
 
     def generate_景旺(self, product):
         if product['market_name'] == '6GHB HF' or product['market_name'] == 'MG55' or \
-                product['internal_name'].find('A-9060C01') >= 0:
+                product['market_name'] == 'A-9060C 01 01':
             if not product['kind'].endswith('_jw'):
                 new_product = product.copy()
                 new_product["kind"] = '%s_jw' % product['kind']

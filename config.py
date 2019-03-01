@@ -166,13 +166,13 @@ CONF = [
     },
     {
         'slug': 'a9060a_my',
-        'template': 'A-9060C_有色_明阳',
+        'template': 'A-9060C01_有色_明阳',
         'name': '感光线路油墨内层',
         'customer': '明阳',
     },
     {
         'slug': 'a9060a_jw',
-        'template': 'A-9060C01_景旺',
+        'template': 'A-9060C0101_有色_景旺',
         'name': '感光线路油墨内层',
         'customer': '景旺',
     },
