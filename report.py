@@ -160,6 +160,9 @@ class Generator(object):
         elif product["market_name"] == "W16":  # 热固阻焊油 200±50
             matched = True
             product["viscosity_limit"] = "200±50"
+        elif product["market_name"] == "SK30A":
+            matched = True
+            product["viscosity_limit"] = "250~550"
 
         # todo 面油 180±50，塞孔油 300±100
 
