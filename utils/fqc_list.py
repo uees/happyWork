@@ -4,7 +4,7 @@ import random
 from openpyxl import load_workbook
 from openpyxl.styles import Font
 
-from config import FQC_ITEMS, ALL_FQC_ITEMS
+from settings import FQC_ITEMS, ALL_FQC_ITEMS
 
 
 class FqcListGenerator(object):

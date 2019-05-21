@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+import os
 
 APP_NAME = "QcReport"
 
 APP_VERSION = "v0.1"
+
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 ALL_FQC_ITEMS = ['外观颜色', '细度', '反白条', '粘度', '板面效果', '固化性', '硬度',
                  '附着力', '感光性', '显影性', '解像性', '去膜性', '耐焊性', '耐化学性', '红外图谱']

@@ -13,13 +13,13 @@ from openpyxl import load_workbook
 from pywintypes import com_error
 
 import data_warp as db
-import iqc_report
+from utils import iqc_report
 # from fqc_list import FqcListGenerator
 from common import is_number, is_number_like, module_path, null2str, rlinput
-from config import CONF
+from settings import CONF
 from database import Product, init_database, reset_table
-from library import WTemplate
-from pdf import add_watermark, create_watermark
+from utils.office import WordTemplate as WTemplate
+from utils.pdf import add_watermark, create_watermark
 
 
 class Generator(object):
