@@ -8,6 +8,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+venv/
 build/
 develop-eggs/
 dist/
@@ -56,13 +57,6 @@ docs/_build/
 # PyBuilder
 target/
 
-
-
-# pyDev
-.settings/
-.project
-.pydevproject
-
 # Windows:
 Thumbs.db
 ehthumbs.db
@@ -71,13 +65,10 @@ Desktop.ini
 # My configurations:
 .vscode/
 .idea/
-tests/
-tmp/
+temp/
 reports/
 templates/
 data/
-config
-tags
 spa/mark.pdf
 搜索结果/
 批号.txt

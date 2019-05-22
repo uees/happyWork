@@ -284,31 +284,42 @@ SPECS = {"1": "1kg±5g",
          "20": "20kg±50g"}
 
 formula = {
-    'name': '6GHB',
-    'version': 'B-01',
-    'category': 'H-9100',
-    'common_name': '湿绿油',
-    'description': '无卤素',
+    'name': '',
+    'created_at': '',
+    'version': '',
+    'category': '',
+    'common_name': '',
+    'description': '',
 
-    'mixing_note': '配料要求',
+    'materials': [
+        # dict(name='', amount='', unit='kg', workshop='', memo=''),
+    ],
 
-    'grind_times': '3',  # 研磨次数
-    'grind_temperature': '<=45',  # 出料温度要求
-    'grind_machine': '三辊机',  # 研磨设备
-    'grind_granule': '<=20um',  # 研磨细度
-    'grind_speed': '120kg/h',  # 研磨速度
-    'grind_note': '研磨要求',  # 研磨其他要求
+    'extend_materials': [
+        # dict(name='', amount='', unit='%', workshop='', memo=''),
+    ],
 
-    'viscosity': "260~270dpas/25℃",
-    'after_adding_note': '加料要求',
+    'technologies': {  # 工艺要求
+        'grind_times': '',  # 研磨次数
+        'grind_temperature': '<=45',  # 出料温度要求
+        'grind_machine': '',  # 研磨设备
+        'grind_granule': '<=20um',  # 研磨细度
+        'grind_speed': '',  # 研磨速度
 
-    'package_machine': '升降机',  # 包装过滤设备方式
-    'package_bag': '100T',  # 过滤袋规格
-    'package_specification': '5kg',
-    'package_ratio': '3:1',
-    'package_part_b': 'HD21',
-    'package_label': '160dpas,两头贴',  # 标签要求
-    'package_note': '包装其他要求',  # 包装要求
+        'viscosity': '',  # 260~270dpas/25℃
 
-    'materials': dict(name='', amount='', workshop='', note=''),
+        'package_machine': '',  # 包装过滤设备方式
+        'package_screen': '',  # 过滤袋规格 100T
+        'package_specification': '',  # 5kg
+        'package_ratio': '',  # 3:1
+        'package_part_b': '',  # HD21
+        'package_label': '',  # 标签要求 160dpas,两头贴
+    },
+
+    'metas': {
+        'mixing_requirement': '',  # 配料要求
+        'grind_requirement': '',  # 研磨要求
+        'after_adding_requirement': '',  # 加料要求
+        'package_requirement': '',  # 包装其他要求
+    },
 }
