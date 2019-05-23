@@ -6,7 +6,48 @@ from datetime import datetime
 
 from openpyxl import load_workbook
 
-from settings import formula as formula_template
+
+def new_formula():
+    return {
+        'name': '',
+        'created_at': '',
+        'version': '',
+        'category': '',
+        'common_name': '',
+        'description': '',
+
+        'materials': [
+            # dict(name='', amount='', unit='kg', workshop='', memo=''),
+        ],
+
+        'extend_materials': [
+            # dict(name='', amount='', unit='%', workshop='', memo=''),
+        ],
+
+        'technologies': {  # 工艺要求
+            'grind_times': '',  # 研磨次数
+            'grind_temperature': '<=45',  # 出料温度要求
+            'grind_machine': '',  # 研磨设备
+            'grind_granule': '<=20um',  # 研磨细度
+            'grind_speed': '',  # 研磨速度
+
+            'viscosity': '',  # 260~270dpas/25℃
+
+            'package_machine': '',  # 包装过滤设备方式
+            'package_screen': '',  # 过滤袋规格 100T
+            'package_specification': '',  # 5kg
+            'package_ratio': '',  # 3:1
+            'package_part_b': '',  # HD21
+            'package_label': '',  # 标签要求 160dpas,两头贴
+        },
+
+        'metas': {
+            'mixing_requirement': '',  # 配料要求
+            'grind_requirement': '',  # 研磨要求
+            'after_adding_requirement': '',  # 加料要求
+            'package_requirement': '',  # 包装其他要求
+        },
+    }
 
 
 class FormulaParser(object):
@@ -33,23 +74,23 @@ class FormulaParser(object):
         )
         @see settings.formula
         """
-        formulas = []
         formula = self.parse_filename()
         materials = self.get_mixing_materials()
         products = self.get_products()
         for product_name, sheet_name in products:
             formula['name'] = product_name  # 重置为车间使用的产品名
-            extends_info = self.get_extends_info(sheet_name)
-            materials.extend(extends_info['materials'])
             formula['materials'] = materials
-            formula['jialiao_yaoqiu'] = extends_info['yaoqiu']
-            formulas.append(formula)
-        return formulas
+            extends_info = self.get_extends_info(sheet_name)
+            formula['extend_materials'] = extends_info['materials']
+            formula['metas']['after_adding_requirement'] = extends_info['requirements']
+            self.formulas.append(formula)
+
+        return self.formulas
 
     def parse_filename(self):
         """
         解析文件名
-        return dict(name, created_at, description, version)
+        return dict formula update dict(name, created_at, description, version)
         """
         filename = os.path.basename(self.filepath).replace("（", "(").replace("）", ")")
         pattern = re.compile(r'''^(?P<created_at>\d{4}-\d{1,2}-\d{1,2})?
@@ -69,15 +110,17 @@ class FormulaParser(object):
                            version='B-01',
                            description='')
 
-        return formula_template.copy().update(formula)
+        _formula = new_formula()
+        _formula.update(formula)
+
+        return _formula
 
     def get_products(self):
         """ return a [(product_name, sheet_name)] list """
         products = []
-        sheets = self.workbook.get_sheet_names()
-        for sheet in sheets:
+        for sheet in self.workbook.sheetnames:
             if sheet.find('配料单') < 0:  # 跟踪单
-                name = self.workbook.get_sheet_by_name(sheet).cell("B4").value
+                name = self.workbook[sheet]["B4"].value
                 if name:
                     products.append((name, sheet))
                 else:
@@ -88,18 +131,18 @@ class FormulaParser(object):
     def get_mixing_materials(self, start=8):
         """
         获取配料表
-        return a list[(name, amount, location)]
+        return a list[dict(name, amount, workshop)]
         """
         materials = []
         try:
-            ws = self.workbook.get_sheet_by_name('配料单')
-        except:
+            ws = self.workbook['配料单']
+        except IndexError:
             ws = self.workbook.worksheets[0]
 
-        for row in ws.iter_rows("B8:C{}".format(ws.max_row)):
+        for row in ws[f"B8:C{ws.max_row}"]:
             name, amount = [cell.value for cell in row]
             if name and isinstance(amount, float) or isinstance(amount, int):
-                materials.append((name, amount, '配料'))
+                materials.append(dict(name=name, amount=amount, workshop='配料'))
 
         return materials
 
@@ -109,8 +152,8 @@ class FormulaParser(object):
         return a dict(materials<list>, requirements<list>)
         """
         info = dict(materials=[], requirements=[])
-        ws = self.workbook.get_sheet_by_name(sheet)
-        title = ws.cell("A2").value
+        ws = self.workbook[sheet]
+        title = ws["A2"].value
         if title is None or title.replace(" ", "") == u"RoHS配料生产记录表":  # 配料单
             return info
 
@@ -132,7 +175,8 @@ class FormulaParser(object):
 
         return info
 
-    def get_extends_start_row(self, ws):
+    @staticmethod
+    def get_extends_start_row(ws):
         """获取加料信息起始行"""
         for row in range(13, ws.max_row):
             if ws.cell(row=row, column=1).value == "物料名称":
