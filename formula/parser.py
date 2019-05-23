@@ -2,9 +2,13 @@
 
 import os
 import re
+import logging
 from datetime import datetime
 
 from openpyxl import load_workbook
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
 def new_formula():
@@ -55,9 +59,15 @@ class FormulaParser(object):
 
     def __init__(self, filepath):
         self.filepath = filepath
-        self.workbook = load_workbook(self.filepath, data_only=True)
-        self.worksheets_num = len(self.workbook.worksheets)
         self.formulas = []
+
+        try:
+            self.workbook = load_workbook(self.filepath, data_only=True)
+            self.worksheets_num = len(self.workbook.worksheets)
+        except:
+            logger.error(f"加载 {self.filepath} 出错。")
+            self.workbook = None
+            self.worksheets_num = None
 
     def parse(self):
         """ return all formulas in self.workbook
@@ -74,6 +84,9 @@ class FormulaParser(object):
         )
         @see settings.formula
         """
+        if self.workbook is None:
+            return self.formulas
+
         formula = self.parse_filename()
         materials = self.get_mixing_materials()
         products = self.get_products()
@@ -117,6 +130,9 @@ class FormulaParser(object):
 
     def get_products(self):
         """ return a [(product_name, sheet_name)] list """
+        if self.workbook is None:
+            return []
+
         products = []
         for sheet in self.workbook.sheetnames:
             if sheet.find('配料单') < 0:  # 跟踪单
@@ -124,11 +140,11 @@ class FormulaParser(object):
                 if name:
                     products.append((name, sheet))
                 else:
-                    raise Exception(f'在 {self.filepath} 的 sheet {sheet} 中没有找到产品名, '
-                                    '请检查是否为不标准的配方格式。')
+                    logger.warning(f'在 {self.filepath} 的 sheet {sheet} 中没有找到产品名, '
+                                   '请检查是否为不标准的配方格式。')
         return products
 
-    def get_mixing_materials(self, start=8):
+    def get_mixing_materials(self, start_row=8):
         """
         获取配料表
         return a list[dict(name, amount, workshop)]
@@ -136,10 +152,10 @@ class FormulaParser(object):
         materials = []
         try:
             ws = self.workbook['配料单']
-        except IndexError:
+        except KeyError:
             ws = self.workbook.worksheets[0]
 
-        for row in ws[f"B8:C{ws.max_row}"]:
+        for row in ws[f"B{start_row}:C{ws.max_row}"]:
             name, amount = [cell.value for cell in row]
             if name and isinstance(amount, float) or isinstance(amount, int):
                 materials.append(dict(name=name, amount=amount, workshop='配料'))
@@ -154,7 +170,7 @@ class FormulaParser(object):
         info = dict(materials=[], requirements=[])
         ws = self.workbook[sheet]
         title = ws["A2"].value
-        if title is None or title.replace(" ", "") == u"RoHS配料生产记录表":  # 配料单
+        if title is None or (isinstance(title, str) and title.replace(" ", "") == "RoHS配料生产记录表"):  # 配料单
             return info
 
         start_row = self.get_extends_start_row(ws)
@@ -178,6 +194,9 @@ class FormulaParser(object):
     @staticmethod
     def get_extends_start_row(ws):
         """获取加料信息起始行"""
-        for row in range(13, ws.max_row):
+        start_row = 13
+        for row in range(start_row, ws.max_row):
             if ws.cell(row=row, column=1).value == "物料名称":
                 return row
+
+        return start_row

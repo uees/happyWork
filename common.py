@@ -2,6 +2,9 @@
 
 import os
 import sys
+import configparser
+
+from settings import BASE_DIR
 
 if 'posix' in sys.builtin_module_names:
     import readline
@@ -67,3 +70,9 @@ def null2str(value):
     if value is None:
         value = ''
     return value
+
+
+def load_config():
+    parser = configparser.ConfigParser()
+    parser.read(os.path.join(BASE_DIR, "default.ini"))
+    return parser
