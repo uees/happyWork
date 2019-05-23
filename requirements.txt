@@ -1,6 +1,6 @@
 openpyxl==2.5.3
 python-docx==0.8.6
-pywin32==223
+# pywin32==223
 SQLAlchemy==1.2.8
 PyPDF2==1.26.0
 ReportLab==3.5.9
