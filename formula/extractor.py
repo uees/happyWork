@@ -29,12 +29,13 @@ def extract_viscosity():
                 if after_adding_requirement.find("粘度要求") >= 0:
                     result.append(dict(name=formula['name'], viscosity=after_adding_requirement))
 
-    return result
+    return _extract_value(result)
 
 
-def viscosity2excel(data):
-    pattern1 = re.compile(r'\D+(\d+)\s*±\s*(\d+)\s*dPa.*')
-    pattern2 = re.compile(r'\D+(\d+)\s*~\s*(\d+)\s*dPa.*')
+def _extract_value(data):
+    # .+? 非贪婪模式  .+ 贪婪模式
+    pattern1 = re.compile(r'.+?(\d+)\s*±\s*(\d+)\s*d[P|p]a.*')
+    pattern2 = re.compile(r'.+?(\d+)\s*~\s*(\d+)\s*d[P|p]a.*')
 
     result = []
     for item in data:
@@ -61,19 +62,51 @@ def viscosity2excel(data):
 
         result.append(item)
 
+    return result
+
+
+def viscosity2excel(data):
     wb = Workbook()
     ws = wb.active
 
-    for index, item in enumerate(result):
+    for index, item in enumerate(data):
         ws.cell(row=index + 1, column=1, value=item['name'])
         if 'min' in item:
             ws.cell(row=index + 1, column=2, value=item['min'])
-        if 'max' in item:
             ws.cell(row=index + 1, column=3, value=item['max'])
         if 'viscosity' in item:
             ws.cell(row=index + 1, column=4, value=item['viscosity'])
 
     wb.save(filename=os.path.join(BASE_DIR, 'data/viscosity.xlsx'))
+
+
+def viscosity2db(data, host, user, password, dbname):
+    import pymysql
+    import json
+
+    # 打开数据库连接
+    db = pymysql.connect(host, user, password, dbname)
+
+    # 使用 cursor() 方法创建一个游标对象 cursor
+    cursor = db.cursor()
+
+    # 使用 execute()  方法执行 SQL 查询
+    cursor.execute("SELECT VERSION()")
+
+    # 使用 fetchone() 方法获取单条数据.
+    data = cursor.fetchone()
+
+    print("Database version : %s " % data)
+
+    for item in data:
+        if 'min' in item:
+            meta = {
+                "spec_viscosity": f"{data['min'] - data['max']}"
+            }
+			# todo to database
+
+    # 关闭数据库连接
+    db.close()
 
 
 def extract_fineness():
