@@ -26,7 +26,7 @@ def extract_viscosity():
                     if requirement.find("粘度要求") >= 0:
                         result.append(dict(name=formula['name'], viscosity=requirement))
             elif after_adding_requirement and isinstance(after_adding_requirement, str):
-                if after_adding_requirement.find("粘度") >= 0:
+                if after_adding_requirement.find("粘度要求") >= 0:
                     result.append(dict(name=formula['name'], viscosity=after_adding_requirement))
 
     return result
@@ -38,7 +38,7 @@ def viscosity2excel(data):
 
     result = []
     for item in data:
-        viscosity = item['viscosity'].replace('～', '~')
+        viscosity = item['viscosity'].replace('～', '~').replace('-', '~')
         match = pattern1.match(viscosity)
         if match:
             middle, extent = match.groups()

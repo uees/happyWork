@@ -2,6 +2,7 @@
 
 import os
 import re
+import copy
 import logging
 from datetime import datetime
 
@@ -87,10 +88,12 @@ class FormulaParser(object):
         if self.workbook is None:
             return self.formulas
 
-        formula = self.parse_filename()
+        _formula = self.parse_filename()
         materials = self.get_mixing_materials()
         products = self.get_products()
+
         for product_name, sheet_name in products:
+            formula = copy.deepcopy(_formula)  # 这里必须 copy 一份，防止引用
             formula['name'] = product_name  # 重置为车间使用的产品名
             formula['materials'] = materials
             extends_info = self.get_extends_info(sheet_name)
