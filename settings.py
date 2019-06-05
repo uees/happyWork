@@ -260,6 +260,11 @@ CONF = [
         'name': '热固化文字油墨',
     },
     {
+        'slug': 'tm3100_mls',
+        'template': 'TM-3100_木林森',
+        'name': '热固化文字油墨',
+    },
+    {
         'slug': 'uvw5d10',
         'template': 'UVW-5D10',
     },
@@ -295,6 +300,14 @@ CONF = [
     {
         'slug': 'rdi6000',
         'template': 'RDI-6000',
+    },
+    {
+        'slug': 'rdi6030',
+        'template': 'RDI-6030',
+    },
+    {
+        'slug': 'rdi600001',
+        'template': 'RDI-600001',
     },
     {
         'slug': 'rdi600003',

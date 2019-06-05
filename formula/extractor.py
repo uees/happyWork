@@ -103,7 +103,7 @@ def viscosity2db(data, host, user, password, dbname):
             meta = {
                 "spec_viscosity": f"{data['min'] - data['max']}"
             }
-			# todo to database
+            # todo to database
 
     # 关闭数据库连接
     db.close()

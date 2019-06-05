@@ -150,10 +150,10 @@ class Generator(object):
 
         if product['market_name'] == "TM-3100 BK":
             matched = True
-            product["viscosity_limit"] = "300~700"
+            product["kind"] = "tm3100_mls"
         elif product['market_name'] == "TM-3100 W":
             matched = True
-            product["viscosity_limit"] = "200~600"
+            product["kind"] = "tm3100_mls"
         elif product["market_name"].startswith('A-2100'):
             matched = True
             product["viscosity_limit"] = "200±100"
@@ -296,7 +296,8 @@ class Generator(object):
 
         conf = self.get_conf(product["kind"])
         if not conf:
-            return print('无效的产品类别')
+            print('无效的产品类别')
+            return
 
         if conf.get('customer'):
             product['ext_info'] += '【%s专用报告】' % conf.get('customer')
@@ -306,7 +307,8 @@ class Generator(object):
 
         template = self.get_template(conf.get('template'))
         if not os.path.exists(template):
-            return print("%s 模板文件不存在！" % product["kind"])
+            print("%s 模板文件不存在！" % product["kind"])
+            return
 
         tp = WTemplate(template)
         tp.replace(product)
