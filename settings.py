@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 import os
 
+from dotenv import load_dotenv
+
+
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+load_dotenv(dotenv_path=os.path.join(BASE_DIR, '.env'))
+
 APP_NAME = "QcReport"
 
 APP_VERSION = "v0.1"
-
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 ALL_FQC_ITEMS = [
     '外观颜色', '细度', '反白条', '粘度', '板面效果',

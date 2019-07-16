@@ -63,6 +63,7 @@ ehthumbs.db
 Desktop.ini
 
 # My configurations:
+.env
 .vscode/
 .idea/
 temp/
