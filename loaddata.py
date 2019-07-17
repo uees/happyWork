@@ -47,16 +47,10 @@ def get_amount(weight, spec, recyclable_type):
     match = re.match(r'^\d+\.?\d+', spec)
     if match:
         per_weight = float(match.group())
-        if recyclable_type == 'box':
-            if per_weight < 10:
-                per_weight = 10
-            elif per_weight < 20:
-                per_weight = 20
-        elif recyclable_type == 'bucket':
-            if per_weight < 20:
-                per_weight = 20
+        if recyclable_type == 'box' and per_weight < 10:
+            per_weight = 10
 
-        if per_weight:
+        if per_weight != 0:
             amount = int(weight / per_weight)
 
     return amount
@@ -64,6 +58,7 @@ def get_amount(weight, spec, recyclable_type):
 
 def entering_warehouse(host, token, product_name, product_batch, spec, weight, entered_at, made_at, current_row):
     if product_name and product_batch and weight and made_at:
+        print(f"Entering Warehouse 第{current_row}行：", entered_at, product_name, product_batch, spec)
         recyclable_type = get_recyclable_type(product_name)
         amount = get_amount(weight, spec, recyclable_type)
         response = requests.post(f'{host}/api/entering-warehouses', data={
@@ -81,11 +76,12 @@ def entering_warehouse(host, token, product_name, product_batch, spec, weight, e
         })
 
         if response.status_code != 201:
-            logging.warning(f'第 {current_row} 行数据入库失败')
+            logging.error(f'第 {current_row} 行数据入库失败')
 
 
 def shipment(host, token, custmor, product_name, product_batch, spec, weight, created_at, current_row):
     if product_name and weight and custmor:
+        print(f"Shipment 第{current_row}行：", created_at, product_name, product_batch, spec)
         recyclable_type = get_recyclable_type(product_name)
         amount = get_amount(weight, spec, recyclable_type)
         data = {
@@ -104,7 +100,7 @@ def shipment(host, token, custmor, product_name, product_batch, spec, weight, cr
         })
 
         if response.status_code != 201:
-            logging.warning(f'第 {current_row} 行数据发货失败')
+            logging.error(f'第 {current_row} 行数据发货失败')
 
 
 def load_file(filename, start_row=3):
@@ -122,8 +118,6 @@ def load_file(filename, start_row=3):
         # 跳过不是内袋装的油
         if not name.value or name.value.find('内袋') == -1:
             continue
-
-        print(date.value, name.value, batch.value, spec.value)
 
         if _type.value == "产品进仓":
             entering_warehouse(
