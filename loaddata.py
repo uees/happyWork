@@ -47,9 +47,17 @@ def get_amount(weight, spec, recyclable_type):
     match = re.match(r'^\d+\.?\d+', spec)
     if match:
         per_weight = float(match.group())
-        if recyclable_type == 'box' and per_weight < 10:
-            per_weight = 10
-        amount = int(weight / per_weight)
+        if recyclable_type == 'box':
+            if per_weight < 10:
+                per_weight = 10
+            elif per_weight < 20:
+                per_weight = 20
+        elif recyclable_type == 'bucket':
+            if per_weight < 20:
+                per_weight = 20
+
+        if per_weight:
+            amount = int(weight / per_weight)
 
     return amount
 
