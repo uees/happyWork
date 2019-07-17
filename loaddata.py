@@ -112,8 +112,10 @@ def load_file(filename, start_row=3):
         _type, date, NO, custmor, code, name, spec, batch, weight, made_at = row
 
         # 跳过不是内袋装的油
-        if not name or name.value.find('内袋') == -1:
+        if not name.value or name.value.find('内袋') == -1:
             continue
+
+        print(date.value, name.value, batch.value, spec.value)
 
         if _type.value == "产品进仓":
             entering_warehouse(
