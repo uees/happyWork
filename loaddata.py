@@ -57,8 +57,10 @@ def get_amount(weight, spec, recyclable_type):
 
 
 def entering_warehouse(host, token, product_name, product_batch, spec, weight, entered_at, made_at, current_row):
-    if product_name and product_batch and weight and made_at:
-        print(f"Entering Warehouse 第{current_row}行：", entered_at, product_name, product_batch, spec)
+    if product_name and product_batch and weight and entered_at and entered_at != "#N/A":
+        if made_at == "#N/A":
+            made_at = None
+        print(f"入库第{current_row}行：", entered_at, product_name, product_batch, spec, made_at)
         recyclable_type = get_recyclable_type(product_name)
         amount = get_amount(weight, spec, recyclable_type)
         response = requests.post(f'{host}/api/entering-warehouses', data={
@@ -80,8 +82,8 @@ def entering_warehouse(host, token, product_name, product_batch, spec, weight, e
 
 
 def shipment(host, token, custmor, product_name, product_batch, spec, weight, created_at, current_row):
-    if product_name and weight and custmor:
-        print(f"Shipment 第{current_row}行：", created_at, product_name, product_batch, spec)
+    if product_name and weight and custmor and created_at and created_at != "#N/A":
+        print(f"发货第{current_row}行：", created_at, product_name, product_batch, spec)
         recyclable_type = get_recyclable_type(product_name)
         amount = get_amount(weight, spec, recyclable_type)
         data = {
@@ -109,7 +111,8 @@ def load_file(filename, start_row=3):
     passwd = os.getenv('ADMIN_PASS')
     token = login(host, email, passwd)
 
-    wb = load_workbook(filename)
+    # read_only 可防止内存爆出，data_only 可以读取公式的值，而不是读到公式
+    wb = load_workbook(filename, read_only=True, data_only=True)
     ws = wb['成品流水账']
     current_row = start_row
     for row in ws[f'A{start_row}:J{ws.max_row}']:
