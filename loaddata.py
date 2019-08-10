@@ -62,6 +62,8 @@ def entering_warehouse(host, token, product_name, product_batch, spec, weight, e
             made_at = None
         print(f"入库第{current_row}行：", entered_at, product_name, product_batch, spec, made_at)
         recyclable_type = get_recyclable_type(product_name)
+        if recyclable_type == "box":
+            return
         amount = get_amount(weight, spec, recyclable_type)
         response = requests.post(f'{host}/api/entering-warehouses', data={
             'product_name': product_name,
@@ -85,6 +87,8 @@ def shipment(host, token, custmor, product_name, product_batch, spec, weight, cr
     if product_name and weight and custmor and created_at and created_at != "#N/A":
         print(f"发货第{current_row}行：", created_at, product_name, product_batch, spec)
         recyclable_type = get_recyclable_type(product_name)
+        if recyclable_type == "box":
+            return
         amount = get_amount(weight, spec, recyclable_type)
         data = {
             'customer_id': custmor,

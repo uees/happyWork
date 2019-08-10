@@ -290,6 +290,10 @@ CONF = [
         'template': 'THW-5D35',
     },
     {
+        'slug': 'thw5d37',
+        'template': 'THW-5D37',
+    },
+    {
         'slug': 'di7j84',
         'template': 'DI-7J84',
     },
