@@ -221,7 +221,7 @@ class Generator(object):
 
             if not product['kind'].endswith('_ntsn'):
                 new_product = product.copy()
-                new_product['ext_info'] += '(深南要打发货数量、要发邮件到ntiqc@scc.com.cn)'
+                new_product['ext_info'] += '(深南要打发货数量)'
                 self.generate_report(new_product, '深南')
 
     def generate_南通深南(self, product):
@@ -234,7 +234,7 @@ class Generator(object):
             if not product['kind'].endswith('_ntsn'):  # 这时没有标注的才创建, 标注过的已经创建了
                 new_product = product.copy()
                 new_product["kind"] = '%s_ntsn' % product['kind']
-                new_product['ext_info'] += '(深南要打发货数量、要发邮件到ntiqc@scc.com.cn)'
+                new_product['ext_info'] += '(南通深南要打发货数量、要发邮件到ntiqc@scc.com.cn)'
                 self.generate_report(new_product, '深南')
 
     def generate_崇达(self, product):
