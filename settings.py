@@ -177,6 +177,12 @@ CONF = [
         'customer': '景旺',
     },
     {
+        'slug': 'h9100_jw22',
+        'template': 'H-9100_景旺_22C',
+        'name': '感光阻焊油墨',
+        'customer': '景旺',
+    },
+    {
         'slug': 'h9100_ntsn',
         'template': 'H-9100_南通深南',
         'name': '感光阻焊油墨',

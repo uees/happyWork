@@ -151,9 +151,13 @@ class Generator(object):
         if product['market_name'] == "TM-3100 BK":
             matched = True
             product["kind"] = "tm3100_mls"
+            product["viscosity_limit"] = "≥300"
+            product["viscosity"] = str(random.choice(range(300, 310)))
         elif product['market_name'] == "TM-3100 W":
             matched = True
             product["kind"] = "tm3100_mls"
+            product["viscosity_limit"] = "200~300"
+            product["viscosity"] = str(random.choice(range(260, 300)))
         elif product["market_name"].startswith('A-2100'):
             matched = True
             product["viscosity_limit"] = "200±100"
@@ -163,10 +167,26 @@ class Generator(object):
         elif product["market_name"] == "SK30A":
             matched = True
             product["viscosity_limit"] = "250~550"
+        elif product["market_name"] == "SK27 01":
+            matched = True
+            product["viscosity_limit"] = "250~500"
+        elif product["market_name"] == "SK11 01":
+            matched = True
+            product["viscosity_limit"] = "250~350"
+            product["viscosity"] = str(random.choice(range(260, 290)))
         elif product["market_name"] == "8G 05":
             matched = True
             product["viscosity_limit"] = "≥160"
         elif product["market_name"] == "8W4":
+            matched = True
+            product["viscosity_limit"] = "≥160"
+        elif product["market_name"] in ("MBK21HF", "MBK21"):
+            matched = True
+            product["viscosity_limit"] = "120~200"
+        elif product["market_name"] == "A-9070 01":
+            matched = True
+            product["viscosity_limit"] = "≥60"
+        elif product["market_name"] == "GH16":
             matched = True
             product["viscosity_limit"] = "≥160"
 
@@ -191,6 +211,15 @@ class Generator(object):
             if not product['kind'].endswith('_jw'):
                 new_product = product.copy()
                 new_product["kind"] = '%s_jw' % product['kind']
+                self.generate_report(new_product)
+
+        # 景旺的 SK01HF01 要求打 22 度下的粘度，要求动态粘度数值
+        if product['market_name'] == 'SK01HF01':
+            if not product['kind'].endswith('_jw22'):
+                new_product = product.copy()
+                new_product["viscosity_limit"] = "300±50"
+                new_product["viscosity"] = str(random.choice(range(280, 320)))
+                new_product["kind"] = '{}_jw22'.format(product['kind'])
                 self.generate_report(new_product)
 
     def generate_健鼎(self, product):
