@@ -228,7 +228,15 @@ class Generator(object):
 
             if not product['kind'].endswith('_jd'):  # 这时没有标注的才创建, 标注过的已经创建了
                 new_product = product.copy()
-                new_product["kind"] = '%s_jd' % product['kind']
+                new_product["kind"] = "{}_jd".format(product['kind'])
+                self.generate_report(new_product)
+
+        if product['market_name'] == "A-9060C":
+            if not product['kind'].endswith('_hbjd'):
+                new_product = product.copy()
+                new_product["kind"] = "a9060c_hbjd"
+                new_product["viscosity_limit"] = "160±30"  # 湖北健鼎要求秒数单位 22C
+                new_product["viscosity"] = str(random.choice(range(140, 160)))
                 self.generate_report(new_product)
 
     def generate_深南(self, product):

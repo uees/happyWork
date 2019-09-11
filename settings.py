@@ -212,6 +212,12 @@ CONF = [
         'customer': '健鼎',
     },
     {
+        'slug': 'a9060c_hbjd',
+        'template': 'A-9060C_内层湿膜_湖北健鼎',
+        'name': '感光线路油墨内层',
+        'customer': '湖北健鼎',
+    },
+    {
         'slug': 'a9060c01',
         'template': 'A-9060C01_有色',
         'name': '感光线路油墨内层',
