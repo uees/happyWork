@@ -74,6 +74,11 @@ FQC_ITEMS = dict(
 
 CONF = [
     {
+        "slug": "lpi_360gs",
+        "name": "360树脂",
+        "template": "LPI-360GS",
+    },
+    {
         'slug': 'h9100',
         'name': '感光阻焊油墨',
         'template': 'H-9100_感光阻焊油墨',
@@ -84,6 +89,11 @@ CONF = [
         'name': '感光阻焊油墨',
         'template': 'H-8100_感光阻焊油墨',
         'alias': ['H-8100'],
+    },
+    {
+        "slug": "h8100_ldi",
+        "name": "LDI 感光阻焊油墨",
+        "template": "LDIBL01",
     },
     {
         'slug': 'h9100d',
@@ -304,6 +314,10 @@ CONF = [
     {
         'slug': 'thw5d37',
         'template': 'THW-5D37',
+    },
+    {
+        'slug': 'thw4d46',
+        'template': 'THW-4D46',
     },
     {
         'slug': 'di7j84',
