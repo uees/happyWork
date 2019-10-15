@@ -9,7 +9,7 @@ from openpyxl import load_workbook
 from requests import HTTPError
 
 from common import rlinput
-from package_material.models.category import KIND_PACKAGES, PACKAGE_CATEGORIES, COL_INDEXES
+from package_material.models.consts import KIND_PACKAGES, PACKAGE_CATEGORIES, COL_INDEXES
 
 
 class WorksheetParser(object):
