@@ -107,7 +107,7 @@ class Generator(object):
         if product['market_name'] == "LPI-360GS":
             product["viscosity_limit"] = "450~650"
             product["viscosity"] = str(random.choice(range(480, 630)))
-            product["shuanzhi"] = str(round(random.uniform(54, 59), 2))
+            product["shuanzhi"] = str(round(random.uniform(52, 55), 2))
             product["ftir"] = '{}%'.format(round(random.uniform(99.3, 100), 2))
 
     def fix_宏华胜(self, product):
