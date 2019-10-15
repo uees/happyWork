@@ -5,163 +5,228 @@ import sys
 
 import requests
 from openpyxl import load_workbook
+from requests import HTTPError
 
 from common import rlinput
 from package_material.models.category import KIND_PACKAGES, PACKAGE_CATEGORIES, COL_INDEXES
 
 
-def login(host, email, password):
-    response = requests.post(f'{host}/api/auth/login', data={
-        'email': email, 'password': password
-    }, headers={
-        'X-Requested-With': 'XMLHttpRequest'
-    })
+class WorksheetParser(object):
+    """
+    解析一个工作表中的包材信息
+    """
 
-    body = response.json()
+    def __init__(self, filename, sheet, start_row=2):
+        self.filename = filename
+        self.sheet = sheet
+        self.start_row = start_row
+        self.current_row = self.start_row
+        self.host = os.getenv('QC_HOST')
+        email = os.getenv('ADMIN_USER')
+        password = os.getenv('ADMIN_PASS')
+        self.token = self.login(email, password)
+        self.wb = load_workbook(filename, data_only=True)
+        self.ws = self.wb[sheet]
 
-    return body.get('token')
+    def run(self):
+        for row in self.ws[f'A{self.start_row}:J{self.ws.max_row}']:
+            _type, date, NO, custmor, code, name, spec, batch, weight, made_at = row
 
+            if not name.value:
+                continue
 
-def search_product(host, token, name):
-    response = requests.get(f'{host}/api/products', params={
-        "with": "category,testWay",
-        "page": 1,
-        "per_page": 40,
-        "sort_by": "id",
-        "order": "desc",
-        "q": name
-    }, headers={
-        'X-Requested-With': 'XMLHttpRequest',
-        'Authorization': f'Bearer {token}'
-    })
+            origin_name = name.value
+            print(f"正在计算第{self.current_row}行 {origin_name} {batch.value} {weight.value}kg 的包材用量")
 
-    products = response.json().get('data')
+            product = self.query_product(origin_name)
+            if not product:
+                continue
 
-    return products
+            per_weight = self.get_per_weight(spec.value)
+            if not per_weight:
+                continue
 
-
-def select_product(products, product_name):
-    for product in products:
-        if product['internal_name'] == product_name:
-            return product
-
-    print("请选择产品ID，可能是以下中的一个")
-    for product in products:
-        space = " " * (20 - len(product['internal_name'])) if len(product['internal_name']) < 20 else ""
-        print("\t %s%s\t ID:%s" % (product['internal_name'], space, product['id']))
-
-    while True:
-        pid = rlinput("请选择产品ID:")
-        if pid == "quit":
-            sys.exit()
-
-        elif pid == "break":
-            return
-
-        for product in products:
-            if str(product['id']) == pid:
-                print("hehe")
-                return product
-
-        print(f"无效的id: {pid}")
-
-
-def get_package_category(product, per_weight, origin_name):
-    slug = product.get('category').get('slug')
-    kind = KIND_PACKAGES[slug]
-
-    # 固化剂是静电喷涂的
-    if slug == 'H-8100B/H-9100B':
-        return PACKAGE_CATEGORIES[kind['SP']]
-
-    # 低压喷涂油和静电喷涂油
-    if origin_name.find('SP') >= 0:
-        kind = KIND_PACKAGES['H-9100 SP']
-        if origin_name.find('内袋') >= 0:
-            return PACKAGE_CATEGORIES[kind['20kg内袋']]
-        return PACKAGE_CATEGORIES[kind['20kg']]
-
-    if per_weight == 5 and (slug == 'H-8100' or slug == 'H-9100'):
-        return PACKAGE_CATEGORIES[kind['5kg']]
-    elif per_weight < 10:
-        key = '10kg'
-    else:
-        key = '20kg'
-
-    if origin_name.find('内袋') >= 0:
-        key += '内袋'
-    elif origin_name.find('固内') >= 0:
-        key += '固内'
-    return PACKAGE_CATEGORIES[kind[key]]
-
-
-def get_per_weight(spec):
-    match = re.match(r'^\d+\.?\d+', spec)
-    if match:
-        per_weight = float(match.group())
-        return per_weight
-    return 0
-
-
-def load_file(filename, sheet="产品进仓", start_row=2):
-    host = os.getenv('QC_HOST')
-    email = os.getenv('ADMIN_USER')
-    passwd = os.getenv('ADMIN_PASS')
-    token = login(host, email, passwd)
-
-    # read_only 可防止内存爆出，data_only 可以读取公式的值，而不是读到公式
-    wb = load_workbook(filename, data_only=True)
-    ws = wb[sheet]
-    current_row = start_row
-    for row in ws[f'A{start_row}:J{ws.max_row}']:
-        _type, date, NO, custmor, code, name, spec, batch, weight, made_at = row
-
-        if not name.value:
-            continue
-
-        origin_name = name.value
-        product_name = origin_name
-        products = search_product(host, token, product_name)
-
-        while not products:
-            product_name = rlinput("品名:", product_name)
-            if product_name == 'break':
-                break
-
-            if product_name == "quit":
+            try:
+                category = self.get_package_category(product, per_weight, origin_name)
+            except KeyError:
+                self.wb.save(self.filename)
                 sys.exit()
 
-            products = search_product(host, token, product_name)
+            # 箱数，20L 罐包装就是是罐数
+            amount = int(weight.value / per_weight)
+            box_type = category['box_type']
+            box_amount = category['box_amount']
+            part_a_jar_type = category['part_a_jar_type']
+            part_a_jar_amount = category['part_a_jar_amount']
+            part_b_jar_type = category['part_b_jar_type']
+            part_b_jar_amount = category['part_b_jar_amount']
+            # c_weight = category['weight']
+            label_amount = category['label_amount']
 
-        product = select_product(products, product_name)
+            if box_type:
+                self.ws[f'{COL_INDEXES[box_type]}{self.current_row}'] = box_amount * amount
+            if part_a_jar_type:
+                self.ws[f'{COL_INDEXES[part_a_jar_type]}{self.current_row}'] = part_a_jar_amount * amount
+            if part_b_jar_type:
+                self.ws[f'{COL_INDEXES[part_b_jar_type]}{self.current_row}'] = part_b_jar_amount * amount
 
-        per_weight = get_per_weight(spec.value)
-        if not per_weight:
-            break
+            self.ws[f'Y{self.current_row}'] = label_amount * amount
 
-        category = get_package_category(product, per_weight, origin_name)
+            self.current_row += 1
 
-        amount = int(weight.value / per_weight)
-        box_type = category['box_type']
-        box_amount = category['box_amount']
-        part_a_jar_type = category['part_a_jar_type']
-        part_a_jar_amount = category['part_a_jar_amount']
-        part_b_jar_type = category['part_b_jar_type']
-        part_b_jar_amount = category['part_b_jar_amount']
-        c_weight = category['weight']
-        label_amount = category['label_amount']
+        self.wb.save(self.filename)
+        print("计算完毕")
 
-        if box_type:
-            ws['{}{}'.format(COL_INDEXES[box_type], current_row)] = box_amount * amount
-        if part_a_jar_type:
-            ws['{}{}'.format(COL_INDEXES[part_a_jar_type], current_row)] = part_a_jar_amount * amount
-        if part_b_jar_type:
-            ws['{}{}'.format(COL_INDEXES[part_b_jar_type], current_row)] = part_b_jar_amount * amount
-        ws['Y{}'.format(current_row)] = label_amount * amount
+    def query_product(self, product_name):
+        """
+        :param product_name:
+        :return: if None 表示 break
+        """
+        # 光刻胶
+        if product_name.find("CP") > 0:
+            return
 
-        current_row += 1
+        # 开油水
+        if product_name.startswith("S-") > 0:
+            return
 
-    wb.save(filename)
+        # 去除无效信息
+        product_name = product_name.replace("内袋", "").replace("固内", "") \
+            .replace("胜宏", "").replace("金像", "").replace("川亿", "") \
+            .replace("外贸", "")
+        if product_name == "9GHD5":
+            product_name = "9G"
+
+        while True:
+            try:
+                products = self.search_product(product_name)
+            except HTTPError as e:
+                self.wb.save(self.filename)
+                sys.exit()
+
+            if products:
+                break
+
+            print(f"未查到{product_name}的产品记录，请修改一下")
+            # product_name = rlinput("品名:", product_name)
+            product_name = rlinput("品名:")
+            if product_name == 'break' or product_name == 'b':
+                break
+
+            elif product_name == "quit":
+                self.wb.save(self.filename)
+                sys.exit()
+
+        if products:
+            return self.select_product(products, product_name)
+
+    def login(self, email, password):
+        response = requests.post(f'{self.host}/api/auth/login', data={
+            'email': email, 'password': password
+        }, headers={
+            'X-Requested-With': 'XMLHttpRequest'
+        })
+
+        body = response.json()
+
+        return body.get('token')
+
+    def search_product(self, query):
+        try:
+            response = requests.get(f'{self.host}/api/products', params={
+                "with": "category,testWay",
+                "page": 1,
+                "per_page": 40,
+                "sort_by": "id",
+                "order": "desc",
+                "q": query,
+            }, headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Authorization': f'Bearer {self.token}'
+            })
+        except:
+            self.wb.save(self.filename)
+            sys.exit()
+
+        response.raise_for_status()
+
+        return response.json().get('data')
+
+    def select_product(self, products, product_name):
+        """
+        :param products: 产品列表
+        :param product_name: 产品名称
+        :return: if None 表示 break
+        """
+        for product in products:
+            if product['internal_name'] == product_name:
+                return product
+
+        print(f"请选择产品{product_name}的ID，可能是以下中的一个")
+        for product in products:
+            space = " " * (20 - len(product['internal_name'])) if len(product['internal_name']) < 20 else ""
+            print("\t %s%s\t ID:%s" % (product['internal_name'], space, product['id']))
+
+        while True:
+            pid = rlinput("请选择产品ID:")
+            if pid == "quit":
+                self.wb.save(self.filename)
+                sys.exit()
+
+            elif pid == "break" or pid == 'b':
+                return
+
+            # 直接回车就是选择第一个
+            elif not pid:
+                return products[0]
+
+            for product in products:
+                if str(product['id']) == pid:
+                    return product
+
+            print(f"无效的id: {pid}")
+
+    @staticmethod
+    def get_package_category(product, per_weight, origin_name):
+        slug = product.get('category').get('slug')
+
+        # 未分类的都是单组份油墨，类似 UVS-1000 的包装
+        if slug == 'undefined':
+            slug = "UVS-1000"
+
+        kind = KIND_PACKAGES[slug]
+
+        # 固化剂是静电喷涂的
+        if slug == 'H-8100B/H-9100B':
+            return PACKAGE_CATEGORIES[kind['SP']]
+
+        # 低压喷涂油和静电喷涂油
+        if origin_name.find('SP') >= 0:
+            kind = KIND_PACKAGES['H-9100 SP']
+            if origin_name.find('内袋') >= 0:
+                return PACKAGE_CATEGORIES[kind['20kg内袋']]
+            return PACKAGE_CATEGORIES[kind['20kg']]
+
+        if per_weight == 5 and (slug == 'H-8100' or slug == 'H-9100'):
+            return PACKAGE_CATEGORIES[kind['5kg']]
+        elif per_weight <= 10:
+            key = '10kg'
+        else:
+            key = '20kg'
+
+        if origin_name.find('内袋') >= 0:
+            key += '内袋'
+        elif origin_name.find('固内') >= 0:
+            key += '固内'
+        return PACKAGE_CATEGORIES[kind[key]]
+
+    @staticmethod
+    def get_per_weight(spec):
+        match = re.match(r'^\d+\.?\d+', spec)
+        if match:
+            per_weight = float(match.group())
+            return per_weight
+        return 0
 
 
 if __name__ == "__main__":
@@ -171,4 +236,5 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--sheet", default="产品进仓", help="excel中的工作表")
 
     args = parser.parse_args()
-    load_file(args.excel_file, args.sheet, args.index)
+    parser = WorksheetParser(args.excel_file, args.sheet, args.index)
+    parser.run()
