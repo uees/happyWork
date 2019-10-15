@@ -113,7 +113,7 @@ PACKAGE_CATEGORIES = {
         "part_a_jar_type": "1L罐",
         "part_a_jar_amount": 5,
         "part_b_jar_type": "1L罐",
-        "part_b_jar_amount": 0,
+        "part_b_jar_amount": 5,
         "weight": 5,
         "label_amount": 11,
     },

@@ -1,4 +1,5 @@
 import argparse
+import math
 import re
 import os
 import sys
@@ -20,7 +21,6 @@ class WorksheetParser(object):
         self.filename = filename
         self.sheet = sheet
         self.start_row = start_row
-        self.current_row = self.start_row
         self.host = os.getenv('QC_HOST')
         email = os.getenv('ADMIN_USER')
         password = os.getenv('ADMIN_PASS')
@@ -29,31 +29,37 @@ class WorksheetParser(object):
         self.ws = self.wb[sheet]
 
     def run(self):
+        current_row = self.start_row
         for row in self.ws[f'A{self.start_row}:J{self.ws.max_row}']:
             _type, date, NO, custmor, code, name, spec, batch, weight, made_at = row
 
             if not name.value:
+                current_row += 1
                 continue
 
             origin_name = name.value
-            print(f"正在计算第{self.current_row}行 {origin_name} {batch.value} {weight.value}kg 的包材用量")
+            print(f"正在计算第{current_row}行 {origin_name} {batch.value} {weight.value}kg 的包材用量")
 
             product = self.query_product(origin_name)
             if not product:
+                current_row += 1
                 continue
 
             per_weight = self.get_per_weight(spec.value)
             if not per_weight:
+                current_row += 1
                 continue
 
             try:
                 category = self.get_package_category(product, per_weight, origin_name)
-            except KeyError:
+            except KeyError as e:
+                print(e)
                 self.wb.save(self.filename)
                 sys.exit()
 
             # 箱数，20L 罐包装就是是罐数
-            amount = int(weight.value / per_weight)
+            # math.ceil 向上取整 2.3 -> 3
+            amount = math.ceil(weight.value / per_weight)
             box_type = category['box_type']
             box_amount = category['box_amount']
             part_a_jar_type = category['part_a_jar_type']
@@ -64,15 +70,15 @@ class WorksheetParser(object):
             label_amount = category['label_amount']
 
             if box_type:
-                self.ws[f'{COL_INDEXES[box_type]}{self.current_row}'] = box_amount * amount
+                self.ws[f'{COL_INDEXES[box_type]}{current_row}'] = box_amount * amount
             if part_a_jar_type:
-                self.ws[f'{COL_INDEXES[part_a_jar_type]}{self.current_row}'] = part_a_jar_amount * amount
+                self.ws[f'{COL_INDEXES[part_a_jar_type]}{current_row}'] = part_a_jar_amount * amount
             if part_b_jar_type:
-                self.ws[f'{COL_INDEXES[part_b_jar_type]}{self.current_row}'] = part_b_jar_amount * amount
+                self.ws[f'{COL_INDEXES[part_b_jar_type]}{current_row}'] = part_b_jar_amount * amount
 
-            self.ws[f'Y{self.current_row}'] = label_amount * amount
+            self.ws[f'Y{current_row}'] = label_amount * amount
 
-            self.current_row += 1
+            current_row += 1
 
         self.wb.save(self.filename)
         print("计算完毕")
@@ -83,24 +89,31 @@ class WorksheetParser(object):
         :return: if None 表示 break
         """
         # 光刻胶
-        if product_name.find("CP") > 0:
+        if product_name.endswith("CP"):
             return
 
         # 开油水
-        if product_name.startswith("S-") > 0:
+        if product_name.startswith("S-"):
             return
 
-        # 去除无效信息
+        # 优化 product_name
         product_name = product_name.replace("内袋", "").replace("固内", "") \
             .replace("胜宏", "").replace("金像", "").replace("川亿", "") \
             .replace("外贸", "")
-        if product_name == "9GHD5":
+        if product_name.startswith("9GHD"):
             product_name = "9G"
+        elif product_name.startswith("2GHD"):
+            product_name = "2G"
+        elif product_name.startswith("3GHD"):
+            product_name = "3G"
+        elif product_name.startswith("UVS-1000"):
+            product_name = "UVS-1000"
 
         while True:
             try:
-                products = self.search_product(product_name)
+                products = self.search_products(product_name)
             except HTTPError as e:
+                print(e.response.status)
                 self.wb.save(self.filename)
                 sys.exit()
 
@@ -108,10 +121,10 @@ class WorksheetParser(object):
                 break
 
             print(f"未查到{product_name}的产品记录，请修改一下")
-            # product_name = rlinput("品名:", product_name)
-            product_name = rlinput("品名:")
+            product_name = rlinput("品名:", product_name)
+            # product_name = rlinput("品名:")
             if product_name == 'break' or product_name == 'b':
-                break
+                return
 
             elif product_name == "quit":
                 self.wb.save(self.filename)
@@ -131,10 +144,10 @@ class WorksheetParser(object):
 
         return body.get('token')
 
-    def search_product(self, query):
+    def search_products(self, query):
         try:
             response = requests.get(f'{self.host}/api/products', params={
-                "with": "category,testWay",
+                "with": "category",
                 "page": 1,
                 "per_page": 40,
                 "sort_by": "id",
@@ -144,7 +157,8 @@ class WorksheetParser(object):
                 'X-Requested-With': 'XMLHttpRequest',
                 'Authorization': f'Bearer {self.token}'
             })
-        except:
+        except Exception as e:
+            print(e)
             self.wb.save(self.filename)
             sys.exit()
 
