@@ -8,6 +8,7 @@ KIND_PACKAGES = {
         '10kg内袋': '10kg双组分内袋包装',
         '20kg内袋': '20kg双组分内袋包装',
         '20kg固内': '20kg双组分固化剂内袋包装',
+        '25kg内袋': '25kg双组分内袋包装',
     },
     'H-9100': {
         '5kg': '5kg双组分包装',
@@ -16,6 +17,7 @@ KIND_PACKAGES = {
         '10kg内袋': '10kg双组分内袋包装',
         '20kg内袋': '20kg双组分内袋包装',
         '20kg固内': '20kg双组分固化剂内袋包装',
+        '25kg内袋': '25kg双组分内袋包装',
     },
     'H-8100B/H-9100B': {
         "10kg": "10kg单组份包装",
@@ -24,6 +26,8 @@ KIND_PACKAGES = {
         "20kg固内": '20kg单组份内袋包装',
     },
     'H-8100 SP': {
+        '10kg': '10kg双组分包装',  # 这是有些丝印绿油选错类别
+        '10kg内袋': '10kg双组分内袋包装',  # 这是有些丝印绿油选错类别
         '20kg': "20L桶包装",
         '20kg内袋': "20L桶内袋包装",
     },
@@ -168,6 +172,16 @@ PACKAGE_CATEGORIES = {
         "part_b_jar_amount": 4,
         "weight": 20,
         "label_amount": 9,
+    },
+    "25kg双组分内袋包装": {
+        "box_type": "17#箱",
+        "box_amount": 1,
+        "part_a_jar_type": "4L袋",
+        "part_a_jar_amount": 5,
+        "part_b_jar_type": "1L袋",
+        "part_b_jar_amount": 5,
+        "weight": 25,
+        "label_amount": 11,
     },
     "20kg双组分固化剂内袋包装": {
         "box_type": "5#箱",

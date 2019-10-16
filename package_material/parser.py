@@ -195,6 +195,12 @@ class WorksheetParser(object):
 
         kind = KIND_PACKAGES[slug]
 
+        # fix 单罐重量
+        if per_weight < 2:
+            return PACKAGE_CATEGORIES[kind['10kg']]
+        if per_weight < 5:
+            return PACKAGE_CATEGORIES[kind['20kg']]
+
         # 低压喷涂油和静电喷涂油
         if origin_name.find('SP') >= 0:
             kind = KIND_PACKAGES['H-9100 SP']
@@ -202,13 +208,12 @@ class WorksheetParser(object):
                 return PACKAGE_CATEGORIES[kind['20kg内袋']]
             return PACKAGE_CATEGORIES[kind['20kg']]
 
-        # fix 单罐重量
-        if per_weight < 2:
-            return PACKAGE_CATEGORIES[kind['10kg']]
-        if per_weight < 5:
-            return PACKAGE_CATEGORIES[kind['20kg']]
-        if per_weight == 5 and (slug == 'H-8100' or slug == 'H-9100'):
-            return PACKAGE_CATEGORIES[kind['5kg']]
+        # 感光阻焊油
+        if slug == 'H-8100' or slug == 'H-9100':
+            if per_weight == 5:
+                return PACKAGE_CATEGORIES[kind['5kg']]
+            if per_weight == 25:
+                return PACKAGE_CATEGORIES[kind['25kg内袋']]
 
         if per_weight <= 10:
             key = '10kg'
