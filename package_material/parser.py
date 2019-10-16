@@ -54,8 +54,7 @@ class WorksheetParser(object):
                 sys.exit()
 
             # 箱数，20L 罐包装就是是罐数
-            # math.ceil 向上取整 2.3 -> 3
-            amount = math.ceil(weight.value / per_weight)
+            amount = weight.value / per_weight  # float
             box_type = category['box_type']
             box_amount = category['box_amount']
             part_a_jar_type = category['part_a_jar_type']
@@ -65,18 +64,19 @@ class WorksheetParser(object):
             label_amount = category['label_amount']
 
             # 标签用量
-            self.ws[f'Y{current_row}'] = label_amount * amount
+            # math.ceil 向上取整 2.3 -> 3
+            self.ws[f'Y{current_row}'] = math.ceil(label_amount * amount)
 
             # 纸箱用量
             if box_type:
-                self.ws[f'{COL_INDEXES[box_type]}{current_row}'] = box_amount * amount
+                self.ws[f'{COL_INDEXES[box_type]}{current_row}'] = math.ceil(box_amount * amount)
 
             # 改标进仓不消耗罐子
             if _type.value != "改标进仓":
                 if part_a_jar_type:
-                    self.ws[f'{COL_INDEXES[part_a_jar_type]}{current_row}'] = part_a_jar_amount * amount
+                    self.ws[f'{COL_INDEXES[part_a_jar_type]}{current_row}'] = math.ceil(part_a_jar_amount * amount)
                 if part_b_jar_type:
-                    self.ws[f'{COL_INDEXES[part_b_jar_type]}{current_row}'] = part_b_jar_amount * amount
+                    self.ws[f'{COL_INDEXES[part_b_jar_type]}{current_row}'] = math.ceil(part_b_jar_amount * amount)
 
             current_row += 1
 
