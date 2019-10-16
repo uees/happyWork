@@ -26,7 +26,7 @@ class Product(Base, MetaMixin):
     created_at = Column(TIMESTAMP(True), nullable=True, server_default=text('CURRENT_TIMESTAMP'))
     updated_at = Column(TIMESTAMP(True), nullable=True)
 
-    category = relationship("Category", back_populates="products")
+    category = relationship("Category", back_populates="products", lazy='joined')
 
     def to_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

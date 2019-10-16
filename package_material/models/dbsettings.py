@@ -1,7 +1,5 @@
 import os
 
-import settings
-
 DB_CONNECTION = os.getenv('DB_CONNECTION')
 DB_DATABASE = os.getenv('DB_DATABASE')
 DB_HOST = os.getenv('DB_HOST')
