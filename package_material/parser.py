@@ -26,8 +26,10 @@ class WorksheetParser(object):
         for row in self.ws[f'A{self.start_row}:J{self.ws.max_row}']:
             _type, date, NO, custmor, code, name, spec, batch, weight, made_at = row
 
-            # 无品名和总量负数的不统计
-            if not name.value or weight.value < 0:
+            # 无品名 和 重量负数 的不统计
+            # 不是 产品进仓 和 改标进仓 的不统计
+            if not name.value or weight.value < 0 \
+                    or (_type.value != "产品进仓" and _type.value != "改标进仓"):
                 current_row += 1
                 continue
 
