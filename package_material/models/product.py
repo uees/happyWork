@@ -1,9 +1,24 @@
-from sqlalchemy import TIMESTAMP, Column, ForeignKey, Integer, String, text
-from sqlalchemy.dialects.mysql import INTEGER
-from sqlalchemy.orm import relationship
+from functools import reduce
 
-from .base import Base
+from sqlalchemy import TIMESTAMP, Column, ForeignKey, Integer, String, text, and_
+from sqlalchemy.dialects.mysql import INTEGER
+from sqlalchemy.orm import relationship, Query
+
+from .base import Base, db_session
 from .mixins import MetaMixin
+
+
+class ProductQuery(Query):
+
+    def search(self, keywords):
+        criteria = []
+        for keyword in keywords.split():
+            keyword = '%' + keyword + '%'
+            criteria.append(Product.internal_name.ilike(keyword))
+
+        q = reduce(and_, criteria)
+
+        return self.filter(q).distinct()
 
 
 class Product(Base, MetaMixin):
@@ -11,6 +26,8 @@ class Product(Base, MetaMixin):
     __table_args__ = {
         "mysql_charset": "utf8"
     }
+
+    query = db_session.query_property(ProductQuery)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     category_id = Column(INTEGER(unsigned=True), ForeignKey('categories.id'))

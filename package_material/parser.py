@@ -109,7 +109,7 @@ class WorksheetParser(object):
             .strip()
 
         while True:
-            products = Product.query.filter(Product.internal_name.like(f"%{product_name}%")).limit(20).all()
+            products = Product.query.search(product_name).limit(20).all()
 
             if products:
                 break
