@@ -11,6 +11,9 @@ from .mixins import MetaMixin
 class ProductQuery(Query):
 
     def search(self, keywords):
+        if not keywords:
+            return self
+
         criteria = []
         for keyword in keywords.split():
             keyword = '%' + keyword + '%'

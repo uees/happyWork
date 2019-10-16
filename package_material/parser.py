@@ -18,7 +18,7 @@ class WorksheetParser(object):
         self.filename = filename
         self.sheet = sheet
         self.start_row = start_row
-        self.wb = load_workbook(filename, data_only=True)
+        self.wb = load_workbook(filename)
         self.ws = self.wb[sheet]
 
     def run(self):
@@ -41,6 +41,7 @@ class WorksheetParser(object):
                 current_row += 1
                 continue
 
+            # 获取单箱重量
             per_weight = self.get_per_weight(spec.value)
             if not per_weight:
                 current_row += 1
@@ -52,6 +53,14 @@ class WorksheetParser(object):
                 print(e)
                 self.wb.save(self.filename)
                 sys.exit()
+
+            # fix 单罐重量
+            if per_weight < 2:
+                # 1kg 包装 10 罐 / 箱
+                per_weight *= 10
+            elif per_weight < 5:
+                # 5kg 包装 4 罐 / 箱
+                per_weight *= 4
 
             # 箱数，20L 罐包装就是是罐数
             amount = weight.value / per_weight  # float
@@ -89,11 +98,17 @@ class WorksheetParser(object):
         :return: if None 表示 break
         """
         # 光刻胶
-        if product_name.endswith("CP"):
+        if product_name.endswith("CP") \
+                or product_name.startswith("RDR-") \
+                or product_name.startswith("RD-") \
+                or product_name.startswith("RDJ-") \
+                or product_name.startswith("SIJ-"):
             return
 
         # 开油水
-        if product_name.startswith("S-"):
+        if product_name.startswith("S-") \
+                or product_name.find('助剂') >= 0 \
+                or product_name.endswith("固化剂"):  # tx-1109 固化剂
             return
 
         # 优化 product_name
@@ -103,6 +118,8 @@ class WorksheetParser(object):
             product_name = "2G"
         elif product_name.startswith("3GHD"):
             product_name = "3G"
+        elif product_name.startswith("8G04HD"):
+            product_name = "8G04"
         elif product_name.startswith("UVS-1000"):
             product_name = "UVS-1000"
 
@@ -178,10 +195,6 @@ class WorksheetParser(object):
 
         kind = KIND_PACKAGES[slug]
 
-        # 固化剂是静电喷涂的
-        if slug == 'H-8100B/H-9100B':
-            return PACKAGE_CATEGORIES[kind['SP']]
-
         # 低压喷涂油和静电喷涂油
         if origin_name.find('SP') >= 0:
             kind = KIND_PACKAGES['H-9100 SP']
@@ -189,9 +202,15 @@ class WorksheetParser(object):
                 return PACKAGE_CATEGORIES[kind['20kg内袋']]
             return PACKAGE_CATEGORIES[kind['20kg']]
 
+        # fix 单罐重量
+        if per_weight < 2:
+            return PACKAGE_CATEGORIES[kind['10kg']]
+        if per_weight < 5:
+            return PACKAGE_CATEGORIES[kind['20kg']]
         if per_weight == 5 and (slug == 'H-8100' or slug == 'H-9100'):
             return PACKAGE_CATEGORIES[kind['5kg']]
-        elif per_weight <= 10:
+
+        if per_weight <= 10:
             key = '10kg'
         else:
             key = '20kg'
