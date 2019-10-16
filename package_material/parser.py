@@ -26,7 +26,8 @@ class WorksheetParser(object):
         for row in self.ws[f'A{self.start_row}:J{self.ws.max_row}']:
             _type, date, NO, custmor, code, name, spec, batch, weight, made_at = row
 
-            if not name.value:
+            # 无品名和总量负数的不统计
+            if not name.value or weight.value < 0:
                 current_row += 1
                 continue
 
@@ -59,17 +60,21 @@ class WorksheetParser(object):
             part_a_jar_amount = category['part_a_jar_amount']
             part_b_jar_type = category['part_b_jar_type']
             part_b_jar_amount = category['part_b_jar_amount']
-            # c_weight = category['weight']
             label_amount = category['label_amount']
 
+            # 标签用量
+            self.ws[f'Y{current_row}'] = label_amount * amount
+
+            # 纸箱用量
             if box_type:
                 self.ws[f'{COL_INDEXES[box_type]}{current_row}'] = box_amount * amount
-            if part_a_jar_type:
-                self.ws[f'{COL_INDEXES[part_a_jar_type]}{current_row}'] = part_a_jar_amount * amount
-            if part_b_jar_type:
-                self.ws[f'{COL_INDEXES[part_b_jar_type]}{current_row}'] = part_b_jar_amount * amount
 
-            self.ws[f'Y{current_row}'] = label_amount * amount
+            # 改标进仓不消耗罐子
+            if _type.value != "改标进仓":
+                if part_a_jar_type:
+                    self.ws[f'{COL_INDEXES[part_a_jar_type]}{current_row}'] = part_a_jar_amount * amount
+                if part_b_jar_type:
+                    self.ws[f'{COL_INDEXES[part_b_jar_type]}{current_row}'] = part_b_jar_amount * amount
 
             current_row += 1
 
@@ -99,7 +104,7 @@ class WorksheetParser(object):
         elif product_name.startswith("UVS-1000"):
             product_name = "UVS-1000"
 
-        product_name = product_name\
+        product_name = product_name \
             .replace("内袋", "") \
             .replace("固内", "") \
             .replace("胜宏", "") \
