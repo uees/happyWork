@@ -108,6 +108,7 @@ class WorksheetParser(object):
         # 开油水
         if product_name.startswith("S-") \
                 or product_name.find('助剂') >= 0 \
+                or product_name.find('稀释剂') >= 0 \
                 or product_name.endswith("固化剂"):  # tx-1109 固化剂
             return
 

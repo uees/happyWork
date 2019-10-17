@@ -94,14 +94,14 @@ KIND_PACKAGES = {
 # package category info
 PACKAGE_CATEGORIES = {
     "10kg单组份包装": {
-        "box_type": "3#箱",
-        "box_amount": 1,
-        "part_a_jar_type": "1L罐",
-        "part_a_jar_amount": 10,
-        "part_b_jar_type": None,
-        "part_b_jar_amount": 0,
-        "weight": 10,
-        "label_amount": 11,
+        "box_type": "3#箱",         # 箱子类型
+        "box_amount": 1,            # 箱子数量
+        "part_a_jar_type": "1L罐",  # A 组分罐子类别
+        "part_a_jar_amount": 10,    # A 组分罐子数量
+        "part_b_jar_type": None,    # B 组分罐子类别
+        "part_b_jar_amount": 0,     # B 组分罐子数量
+        "weight": 10,               # 每箱重量
+        "label_amount": 11,         # 每箱用标签总数
     },
     "20kg单组份包装": {
         "box_type": "1#箱",
