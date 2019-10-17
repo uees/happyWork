@@ -228,7 +228,7 @@ class WorksheetParser(object):
 
     @staticmethod
     def get_per_weight(spec):
-        match = re.match(r'^\d+\.?\d+', spec)
+        match = re.match(r'^\d+(\.\d+)?', spec)
         if match:
             per_weight = float(match.group())
             return per_weight
