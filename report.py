@@ -97,6 +97,7 @@ class Generator(object):
             self.generate_木林森(product)
             self.generate_华新(product)
             self.generate_威尔高(product)
+            self.generate_金像(product)
 
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
@@ -148,6 +149,15 @@ class Generator(object):
             new_product = product.copy()
             new_product["kind"] = 'h8100'
             new_product['ext_info'] += '【华新专用报告】'
+            self.generate_report(new_product)
+
+    def generate_金像(self, product):
+        """ A-9060A 01 打 7±2 """
+        if product['market_name'] == "A-9060A 01":
+            new_product = product.copy()
+            new_product["viscosity_limit"] = "7±2"
+            new_product["viscosity"] = "%.1f" % random.uniform(7, 9)
+            new_product['ext_info'] += '【金像专用报告】'
             self.generate_report(new_product)
 
     def generate_木林森(self, product):
