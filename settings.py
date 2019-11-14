@@ -341,6 +341,10 @@ CONF = [
         'template': 'RDI-6030',
     },
     {
+        'slug': 'rdi6040gl',
+        'template': 'RDI-6040GL01',
+    },
+    {
         'slug': 'rdi600001',
         'template': 'RDI-600001',
     },

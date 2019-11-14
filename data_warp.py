@@ -49,7 +49,7 @@ def init_product_data(file, sheet):
     """ 从 database.xlsx 读取数据 """
     wb = load_workbook(filename=file)
     ws = wb[sheet]
-    for row in ws.iter_rows('A2:J{}'.format(ws.max_row)):
+    for row in ws['A2:J{}'.format(ws.max_row)]:
         (internal_name, template, viscosity, viscosity_width, market_name, category,
          part_a, part_b, ratio, color) = [cell.value for cell in row]
         if internal_name:
@@ -71,7 +71,7 @@ def init_product_data(file, sheet):
 def init_materials(filename, sheet):
     wb = load_workbook(filename)
     ws = wb[sheet]
-    for row in ws.iter_rows('A2:D{}'.format(ws.max_row)):
+    for row in ws['A2:D{}'.format(ws.max_row)]:
         material_name, qc_items, spec, qc_method = [cell.value for cell in row]
         if not material_name:
             continue
