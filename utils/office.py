@@ -1,9 +1,3 @@
-# -- coding: utf-8 -*-
-"""
-Created on 2015年7月10日
-
-@author: Wan
-"""
 from docx import Document
 from openpyxl import Workbook, load_workbook
 

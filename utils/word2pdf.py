@@ -1,4 +1,8 @@
 import os
+import sys
+
+if 'nt' not in sys.builtin_module_names:
+    raise Exception("This function only support windows")
 
 from win32com.client import constants, gencache
 

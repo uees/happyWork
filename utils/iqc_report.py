@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import random
 import re
 from datetime import datetime
@@ -20,10 +19,11 @@ def generate(filename, end_row=None):
         material_name, incoming_date, supplier, qc_result, substandard_items, amount = [
             cell.value for cell in row]
 
+        _material_name = ''
         if isinstance(material_name, str):
             _material_name = re.sub(r'[\u4e00-\u9fa5]+', '', material_name)  # 去掉中文
-            if not _material_name:
-                continue
+        if not _material_name:
+            continue
         material = IQCMaterial.query.filter(IQCMaterial.name.ilike('%' + _material_name + '%')).first()
         if not material or material.qc_items == '免检':
             continue
