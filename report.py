@@ -8,9 +8,7 @@ import re
 import sys
 from datetime import datetime
 
-import win32com.client
 from openpyxl import load_workbook
-from pywintypes import com_error
 
 import data_warp as db
 from utils import iqc_report
@@ -607,17 +605,21 @@ class Generator(object):
         self._wb.save(self._product_wb_file)
 
     def close_excel(self):
-        engine = win32com.client.Dispatch('Excel.Application')
-        engine.DisplayAlerts = False
+        if 'nt' in sys.builtin_module_names:
+            import win32com.client
+            from pywintypes import com_error
 
-        try:
-            wb = engine.Workbooks(self._product_wb_file)
-        except com_error:
-            pass
-        else:
-            wb.Close(1)
-        finally:
-            engine.Quit()
+            engine = win32com.client.Dispatch('Excel.Application')
+            engine.DisplayAlerts = False
+
+            try:
+                wb = engine.Workbooks(self._product_wb_file)
+            except com_error:
+                pass
+            else:
+                wb.Close(1)
+            finally:
+                engine.Quit()
 
     def get_today_report_dir_path(self):
         """
