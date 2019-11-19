@@ -296,6 +296,10 @@ CONF = [
         'template': 'UVW-5D10',
     },
     {
+        'slug': 'uvw5d110d1',
+        'template': 'UVW-5D110D1',
+    },
+    {
         'slug': 'uvw5d65',
         'template': 'UVW-5D65',
     },
