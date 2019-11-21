@@ -1,9 +1,8 @@
-# -- coding: utf-8 -*-
-'''
-Created on 2015年7月10日
+import sys
 
-@author: Wan
-'''
+if 'nt' not in sys.builtin_module_names:
+    raise Exception("This function only support windows")
+
 import win32com.client
 from win32com.client import constants
 

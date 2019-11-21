@@ -7,14 +7,17 @@ import configparser
 from settings import BASE_DIR
 
 if 'posix' in sys.builtin_module_names:
-    import readline
+    # readline 模块定义了一系列函数用来读写 Python 解释器中历史命令，并提供自动补全命令功能
+    # import readline
 
     def rlinput(prompt, prefill=''):
-        readline.set_startup_hook(lambda: readline.insert_text(prefill))
-        try:
-            return input(prompt)
-        finally:
-            readline.set_startup_hook()
+        # readline.set_startup_hook(lambda: readline.insert_text(prefill))
+        # try:
+        #     return input(prompt)
+        # finally:
+        #     readline.set_startup_hook()
+        return input(prompt)
+
 elif 'nt' in sys.builtin_module_names:
     import win32console
     _stdout = win32console.GetStdHandle(win32console.STD_OUTPUT_HANDLE)

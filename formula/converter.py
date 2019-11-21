@@ -31,7 +31,7 @@ if platform.system() == 'Windows':
 
 else:
     def convert2xlsx():
-        pass
+        print("This function only support windows")
 
 
 if __name__ == "__main__":
