@@ -333,6 +333,11 @@ CONF = [
         'alias': ['XSJ'],
     },
     {
+        'slug': 'xsj_amount',
+        'template': '稀释剂_数量',
+        'alias': ['XSJ_AMOUNT'],
+    },
+    {
         'slug': 'xd',
         'template': 'XD704',
     },

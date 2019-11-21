@@ -64,7 +64,7 @@ class Generator(object):
                 continue
 
             # 可以有效减少背锅概率
-            if len(product['batch']) != 8:
+            if len(product['batch']) != 8 and product['kind'] != 'xsj':
                 print("Line{}:卧槽,批号格式不一般,直接跳过不生成!!@#$@#&%".format(index))
                 continue
 
@@ -96,6 +96,7 @@ class Generator(object):
             self.generate_华新(product)
             self.generate_威尔高(product)
             self.generate_金像(product)
+            self.generate_xsj_with_amount(product)
 
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
@@ -305,6 +306,13 @@ class Generator(object):
                 new_product["kind"] = '%s_cd' % product['kind']
                 self.generate_report(new_product)
 
+    def generate_xsj_with_amount(self, product):
+        if product['kind'] == 'xsj':
+            new_product = product.copy()
+            new_product["kind"] = '%s_amount' % product['kind']
+            new_product['ext_info'] = '(深南-崇达-宏华胜-要打发货数量)' + new_product['ext_info']
+            self.generate_report(new_product)
+
     def generate_normal(self, product):
         if product['kind'].endswith('_jx'):  # 金像是设置的主剂粘度, 只此一家用, 暂时不生成 normal
             return
@@ -400,10 +408,9 @@ class Generator(object):
 
         if is_number(batch):
             batch = str(int(batch))
-        else:
-            print("警告：Line {} 批号可能不是数字.".format(index))
-            # 批号不是数字的不能生成信息
-            return
+        if not batch:
+            batch = ''
+            ext_info += "【批号没填】"
 
         if is_number(amount):
             # amount = '发货数量:{}kg'.format(int(amount))
@@ -414,7 +421,7 @@ class Generator(object):
         if not isinstance(product_date, datetime):
             print("Line{}:时间格式不正确,已经为你设置为空串.".format(index))
             product_date = ''
-            ext_info += "【注意：生产日期没填】"
+            ext_info += "【生产日期没填】"
         else:
             mon_days = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
             next_year = product_date.year
