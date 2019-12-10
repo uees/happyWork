@@ -97,6 +97,7 @@ class Generator(object):
             self.generate_威尔高(product)
             self.generate_金像(product)
             self.generate_xsj_with_amount(product)
+            self.generate_bomin(product)
 
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
@@ -237,6 +238,17 @@ class Generator(object):
                 new_product["viscosity_limit"] = "300±50"
                 new_product["viscosity"] = str(random.choice(range(280, 320)))
                 new_product["kind"] = '{}_jw22'.format(product['kind'])
+                self.generate_report(new_product)
+
+    def generate_bomin(self, product):
+        """生成博敏的专用报告"""
+        if product['market_name'].replace(' ', '') == '8G0105' or \
+                product['market_name'] == 'AMG3' or \
+                product['market_name'] == 'MG75HF' or \
+                product['market_name'] == '8BK15':
+            if not product['kind'].endswith('_bomin'):
+                new_product = product.copy()
+                new_product["kind"] = "{}_bomin".format(product['kind'])
                 self.generate_report(new_product)
 
     def generate_健鼎(self, product):

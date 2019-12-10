@@ -169,6 +169,18 @@ CONF = [
         'customer': '达进',
     },
     {
+        'slug': 'h8100_bomin',
+        'template': 'H-8100_博敏',
+        'name': '感光阻焊油墨',
+        'customer': '博敏',
+    },
+    {
+        'slug': 'h9100_bomin',
+        'template': 'H-9100_博敏',
+        'name': '感光阻焊油墨',
+        'customer': '博敏',
+    },
+    {
         'slug': 'h9100_weg',
         'template': 'H-9100_威尔高',
         'name': '感光阻焊油墨',
