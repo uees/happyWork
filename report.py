@@ -114,9 +114,10 @@ class Generator(object):
     def fix_宏华胜(self, product):
         # product 数组引用传值，内部修改影响外面
         if product['market_name'].find('28GHB') >= 0 or \
-                product['market_name'].find('30GHB') >= 0:
+                product['market_name'].find('30GHB') >= 0 or \
+                product['market_name'].find('59GHB') >= 0:
             product['ext_info'] += '(宏华胜要求打发货数量)'
-            product['kind'] = 'h9100_fsk'
+            product['kind'] = 'h9100_fsk'  # 宏华胜要求的是20℃的粘度
             product['wants_normal'] = False
         elif product['market_name'].find('SP20HF') >= 0:
             product['ext_info'] += '(宏华胜要求打发货数量)'
