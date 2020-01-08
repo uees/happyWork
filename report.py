@@ -64,7 +64,7 @@ class Generator(object):
                 continue
 
             # 可以有效减少背锅概率
-            if len(product['batch']) != 8 and product['kind'] != 'xsj':
+            if len(product['batch']) != 8 and product['kind'] != 'xsj' and product['market_name'] != 'LPI-360GS':
                 print("Line{}:卧槽,批号格式不一般,直接跳过不生成!!@#$@#&%".format(index))
                 continue
 
