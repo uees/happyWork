@@ -320,6 +320,10 @@ CONF = [
         'template': 'UVW-5D65D28',
     },
     {
+        'slug': 'uvw5d65d28a',
+        'template': 'UVW-5D65D28A',
+    },
+    {
         'slug': 'uvw5d85',
         'template': 'UVW-5D85',
     },
@@ -356,6 +360,10 @@ CONF = [
     {
         'slug': 'xd',
         'template': 'XD704',
+    },
+    {
+        'slug': 'rd391',
+        'template': 'RD-391',
     },
     {
         'slug': 'rdi6000',
