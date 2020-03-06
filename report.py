@@ -161,6 +161,15 @@ class Generator(object):
             new_product['ext_info'] += '【金像专用报告】'
             self.generate_report(new_product)
 
+    def generate_建业(self, product):
+        """ 建业 MG31 160±50 """
+        if product['market_name'].startswith("MG31"):
+            new_product = product.copy()
+            new_product["viscosity_limit"] = "160±50"
+            new_product["viscosity"] = str(random.choice(range(160, 170)))
+            new_product['ext_info'] += '【建业专用报告】'
+            self.generate_report(new_product)
+
     def generate_木林森(self, product):
         """ 木林森对字符油粘度范围有特殊要求 """
         product = product.copy()
