@@ -98,6 +98,7 @@ class Generator(object):
             self.generate_金像(product)
             self.generate_xsj_with_amount(product)
             self.generate_bomin(product)
+            self.generate_建业(product)
 
             self._set_report_info(product)
             # self.fqc_g.fqc_record(product)
