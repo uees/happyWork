@@ -253,10 +253,11 @@ class Generator(object):
 
     def generate_bomin(self, product):
         """生成博敏的专用报告"""
-        if product['market_name'].replace(' ', '') == '8G0105' or \
-                product['market_name'] == 'AMG3' or \
-                product['market_name'] == 'MG75HF' or \
-                product['market_name'] == '8BK15':
+        if product['market_name'].replace(' ', '') in ["8BL2", "8G0105", "SK35", "23GHB", "8BL7", "WB5101",
+                                                       "8BK15", "MG31", "8BL9HF", "20GHB", "SK47", "SK27", "SK41HF",
+                                                       "MG3101", "SK40HF", "T-SK2902", "T-SK50BLHF", "44G", "8R15",
+                                                       "80R6", "15GHB 12", "MG75HF", "G602", "SK36W", "SK8R",
+                                                       "AMG3", "MBK16", "YH2", "8GR01", "中绿", "09R", "SK3502"]:
             if not product['kind'].endswith('_bomin'):
                 new_product = product.copy()
                 new_product["kind"] = "{}_bomin".format(product['kind'])
