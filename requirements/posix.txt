@@ -6,5 +6,5 @@ ReportLab==3.5.31
 pillow==6.2.1
 requests==2.22.0
 python-dotenv==0.10.3
-mysqlclient==1.4.4
+mysqlclient==1.4.6
 readline==6.2.4.1
