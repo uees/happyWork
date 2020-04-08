@@ -280,6 +280,13 @@ class Generator(object):
                 new_product["viscosity"] = str(random.choice(range(140, 160)))
                 self.generate_report(new_product)
 
+        elif product.get('market_name').find('15GHB') == 0:  # 健鼎 15GHB 粘度搞成 180±50
+            new_product = product.copy()
+            new_product['ext_info'] += '(健鼎专用报告)'
+            new_product["viscosity_limit"] = "180±50"
+            new_product["viscosity"] = str(random.choice(range(160, 170)))
+            self.generate_report(new_product)
+
     def generate_深南(self, product):
         if product.get('market_name').find('SP8') == 0 or \
                 product.get('market_name').find('SP50') == 0 or \
