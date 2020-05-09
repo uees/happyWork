@@ -71,14 +71,7 @@ class Generator(object):
             # fix模式: 修改了 product
             self.fix_宏华胜(product)
             self.fix_高士(product)
-
-            # TODO 秒数的粘度动态
-            if product['market_name'] == 'A-9060C 01 01':
-                product['viscosity'] = "%s" % random.randint(200, 210)
-                product['wants_normal'] = False
-            elif product['market_name'] == 'A-9060C 01':
-                product['viscosity'] = "%s" % random.randint(90, 100)
-                product['wants_normal'] = False
+            self.fix_A_9060C0101(product)
 
             self.generate_report(product)
 
@@ -104,6 +97,14 @@ class Generator(object):
             # self.fqc_g.fqc_record(product)
 
         self.save()
+
+    def fix_A_9060C0101(self, product):
+        if product['market_name'] == 'A-9060C 01 01':
+            product['viscosity'] = "%s" % random.randint(200, 210)
+            product['wants_normal'] = False
+        elif product['market_name'] == 'A-9060C 01':
+            product['viscosity'] = "%s" % random.randint(90, 100)
+            product['wants_normal'] = False
 
     def fix_高士(self, product):
         if product['market_name'] == "LPI-360GS":
@@ -303,6 +304,12 @@ class Generator(object):
             # T-SK2902 红外PDF
             if product.get('market_name').find('T-SK29') >= 0:
                 self.generatePDF(product, dir='T-SK2902', max=17)
+
+                # T-SK2902 要求打 22 度下的粘度，要求动态粘度数值
+                product = product.copy()
+                product["viscosity_limit"] = "300±50"
+                product["viscosity"] = str(random.choice(range(280, 320)))
+                product["kind"] = 'h9100_22c'
 
             if not product['kind'].endswith('_ntsn'):
                 new_product = product.copy()
